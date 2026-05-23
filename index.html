@@ -770,10 +770,21 @@ function tryPdf(){
       if(res.ok){
         document.getElementById('ref-img-wrap').style.display='block';
         ie.style.display='block';
-        ie.innerHTML='';
+        ie.style.background='none';
+        ie.style.padding='20px 0';
+        var existingContent=ie.querySelectorAll('.pdf-hide');
+        existingContent.forEach(function(el){el.style.display='none'});
+        var iconEl=ie.querySelector('div');
+        if(iconEl)iconEl.style.display='none';
+        var strongEl=ie.querySelector('strong');
+        if(strongEl)strongEl.style.display='none';
+        var spanEl=ie.querySelector('span');
+        if(spanEl)spanEl.style.display='none';
+        var existing=document.getElementById('pdf-open-btn');
+        if(existing)existing.remove();
         var btn=document.createElement('a');
         btn.id='pdf-open-btn';btn.href=pdfUrl;btn.target='_blank';
-        btn.style.cssText='display:inline-block;margin-top:14px;padding:14px 28px;background:var(--g7);color:#fff;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px;';
+        btn.style.cssText='display:inline-block;padding:14px 28px;background:var(--g7);color:#fff;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px;';
         btn.textContent='📄 Open PDF Reference';
         ie.appendChild(btn);
       } else {showMissing();}

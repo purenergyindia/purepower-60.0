@@ -790,9 +790,17 @@ function tryPdf(){
       } else {showMissing();}
     }).catch(function(){showMissing();});
   }
-  function showMissing(){
+function showMissing(){
     document.getElementById('ref-img-wrap').style.display='block';
     ie.style.display='block';
+    ie.style.background='';
+    ie.style.padding='';
+    var iconEl=ie.querySelector('div');
+    if(iconEl)iconEl.style.display='';
+    var strongEl=ie.querySelector('strong');
+    if(strongEl)strongEl.style.display='';
+    var spanEl=ie.querySelector('span');
+    if(spanEl)spanEl.style.display='';
     fn.textContent=file;
   }
   tryImg();

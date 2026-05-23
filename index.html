@@ -345,24 +345,30 @@ textarea{resize:vertical;min-height:90px;line-height:1.6}
       </div>
       <div class="field"><label class="fl">Confirm that all nominal loads are running in solar mode</label><div class="yn" id="yn_nl"><label class="yb" onclick="py(this,'yn_nl','yes')"><input type="radio" name="ynl"><span class="dot"></span>Yes</label><label class="yb" onclick="py(this,'yn_nl','no')"><input type="radio" name="ynl"><span class="dot"></span>No</label></div></div>
       <div class="g3">
-        <div class="field"><label class="fl">Enter Output Power (kW) — R-Phase (P1)</label><input type="number" placeholder="Enter kW"></div>
-        <div class="field"><label class="fl">Enter Output Power (kW) — Y-Phase (P2)</label><input type="number" placeholder="Enter kW"></div>
-        <div class="field"><label class="fl">Enter Output Power (kW) — B-Phase (P3)</label><input type="number" placeholder="Enter kW"></div>
-      </div>
-      <div class="field">
-        <label class="fl">Attach the Video / Picture for each Phase (Nominal Load)</label>
-        <div class="ar"><div class="uw"><label class="ul"><input type="file" id="f_nv" accept="image/*,video/*" onchange="ac(this,'c_nv')"><span class="ui">📎</span><div class="ut"><strong>Attach Video or Picture</strong><span>JPG, PNG or MP4</span></div></label><div class="chips" id="c_nv"></div></div><div class="rb"><a class="rt" onclick="r('Nominal Load Reference','ref-nom-load.jpg','Capture video or picture of all nominal loads running in solar mode. Show all three phases clearly.')"><span class="ri">🖼️</span><small>Reference</small></a></div></div>
-      </div>
+  <div class="field"><label class="fl">Enter Output Power (kW) — R-Phase (P1) Display 1</label><input type="number" placeholder="Enter kW"></div>
+  <div class="field"><label class="fl">Enter Output Power (kW) — R-Phase (P1) Display 2</label><input type="number" placeholder="Enter kW"></div>
+  <div class="field"><label class="fl">Enter Output Power (kW) — Y-Phase (P2) Display 1</label><input type="number" placeholder="Enter kW"></div>
+</div>
+<div class="g3">
+  <div class="field"><label class="fl">Enter Output Power (kW) — Y-Phase (P2) Display 2</label><input type="number" placeholder="Enter kW"></div>
+  <div class="field"><label class="fl">Enter Output Power (kW) — B-Phase (P3) Display 1</label><input type="number" placeholder="Enter kW"></div>
+  <div class="field"><label class="fl">Enter Output Power (kW) — B-Phase (P3) Display 2</label><input type="number" placeholder="Enter kW"></div>
+</div>
+<div class="field">
+  <label class="fl">Attach the Video / Picture for each Phase (Nominal Load)</label>
+  <div class="ar"><div class="uw"><label class="ul"><input type="file" id="f_nv" accept="image/*,video/*" onchange="ac(this,'c_nv')"><span class="ui">📎</span><div class="ut"><strong>Attach Video or Picture</strong><span>JPG, PNG or MP4</span></div></label><div class="chips" id="c_nv"></div></div><div class="rb"><a class="rt" onclick="r('Nominal Load Reference','ref-nom-load.jpg','Capture video or picture of all nominal loads running in solar mode. Show all three phases clearly.')"><span class="ri">🖼️</span><small>Reference</small></a></div></div>
+</div>
       <div class="field"><label class="fl">Confirm that all full loads are running in solar mode</label><div class="yn" id="yn_fl"><label class="yb" onclick="py(this,'yn_fl','yes')"><input type="radio" name="yfl"><span class="dot"></span>Yes</label><label class="yb" onclick="py(this,'yn_fl','no')"><input type="radio" name="yfl"><span class="dot"></span>No</label></div></div>
       <div class="g3">
-        <div class="field"><label class="fl">Enter output power (kVA) — R-Phase (P1)</label><input type="number" placeholder="Enter kVA"></div>
-        <div class="field"><label class="fl">Enter output power (kVA) — Y-Phase (P2)</label><input type="number" placeholder="Enter kVA"></div>
-        <div class="field"><label class="fl">Enter output power (kVA) — B-Phase (P3)</label><input type="number" placeholder="Enter kVA"></div>
-      </div>
-      <div class="field">
-        <label class="fl">Attach the Video / Picture (Full Load)</label>
-        <div class="ar"><div class="uw"><label class="ul"><input type="file" id="f_fv" accept="image/*,video/*" onchange="ac(this,'c_fv')"><span class="ui">📎</span><div class="ut"><strong>Attach Video or Picture</strong><span>JPG, PNG or MP4</span></div></label><div class="chips" id="c_fv"></div></div><div class="rb"><a class="rt" onclick="r('Full Load Reference','ref-full-load.jpg','Capture video or picture showing full loads running in solar mode across all three phases.')"><span class="ri">🖼️</span><small>Reference</small></a></div></div>
-      </div>
+  <div class="field"><label class="fl">Enter output power (kVA) — R-Phase (P1) Display 1</label><input type="number" placeholder="Enter kVA"></div>
+  <div class="field"><label class="fl">Enter output power (kVA) — R-Phase (P1) Display 2</label><input type="number" placeholder="Enter kVA"></div>
+  <div class="field"><label class="fl">Enter output power (kVA) — Y-Phase (P2) Display 1</label><input type="number" placeholder="Enter kVA"></div>
+</div>
+<div class="g3">
+  <div class="field"><label class="fl">Enter output power (kVA) — Y-Phase (P2) Display 2</label><input type="number" placeholder="Enter kVA"></div>
+  <div class="field"><label class="fl">Enter output power (kVA) — B-Phase (P3) Display 1</label><input type="number" placeholder="Enter kVA"></div>
+  <div class="field"><label class="fl">Enter output power (kVA) — B-Phase (P3) Display 2</label><input type="number" placeholder="Enter kVA"></div>
+</div>
       <div class="field">
         <label class="fl">Confirm DC Earthing value (&lt;5 ohm) &amp; attach the picture</label>
         <span class="fh">DC earthing must be connected to a separate earth pit, and the measured resistance value should be below 5 ohms</span>

@@ -671,160 +671,549 @@ textarea{resize:vertical;min-height:90px;line-height:1.6}
 </div>
 <div class="toast" id="tst"></div>
 <script>
-var nStr=0;
-function tog(h){var b=h.nextElementSibling,c=h.querySelector('.cv');b.classList.toggle('col');c.classList.toggle('open')}
-function hf(){var v=document.getElementById('fb').value;document.getElementById('sp').classList.toggle('hidden',v!=='pure');document.getElementById('sd').classList.toggle('hidden',v!=='dealer');pg()}
-function hs(){var v=document.getElementById('ss').value;document.getElementById('ssec').classList.toggle('hidden',v!=='yes');document.getElementById('smon').classList.toggle('hidden',v!=='yes');pg()}
-function py(el,gid,val){document.querySelectorAll('#'+gid+' .yb').forEach(function(b){b.classList.remove('yes','no')});el.classList.add(val);pg()}
-function bStr(){
-  var c=document.getElementById('stc');c.innerHTML='';
-  for(var n=1;n<=12;n++){
-    var d=document.createElement('div');d.className='sb';d.id='sb'+n;
-    d.innerHTML=(n>1?'<hr class="div">':'')+'<div class="sh">⚡ String '+n+' Details</div>'+
-    '<div class="field"><label class="fl">String '+n+' — Enter the number of modules connected in series (Note: N series = 450 / Voltage at maximum power of one panel (Voc))</label><input type="number" placeholder="Enter count"></div>'+
-    '<div class="field"><label class="fl">String '+n+' — Enter the string voltage VDC (V)</label><input type="number" placeholder="Enter V"></div>'+
-    '<div class="field"><label class="fl">String '+n+' — Confirm that the each string voltage did not exceed 450V per string</label><div class="yn" id="yn_s'+n+'_450"><label class="yb" onclick="py(this,\'yn_s'+n+'_450\',\'yes\')"><input type="radio" name="ys'+n+'450"><span class="dot"></span>Yes</label><label class="yb" onclick="py(this,\'yn_s'+n+'_450\',\'no\')"><input type="radio" name="ys'+n+'450"><span class="dot"></span>No</label></div></div>'+
-    '<div class="field"><label class="fl">String '+n+' — Enter total system size (DC Watts) per string (W)</label><input type="number" placeholder="Enter W"></div>'+
-    '<div class="field"><label class="fl">String '+n+' — Confirm that it did not exceed 5500 watts per string</label><div class="yn" id="yn_s'+n+'_5500"><label class="yb" onclick="py(this,\'yn_s'+n+'_5500\',\'yes\')"><input type="radio" name="ys'+n+'5500"><span class="dot"></span>Yes</label><label class="yb" onclick="py(this,\'yn_s'+n+'_5500\',\'no\')"><input type="radio" name="ys'+n+'5500"><span class="dot"></span>No</label></div></div>'+
-    '<div class="field"><label class="fl">String '+n+' — Confirm that Imax did not exceed 18A per string</label><div class="yn" id="yn_s'+n+'_imax"><label class="yb" onclick="py(this,\'yn_s'+n+'_imax\',\'yes\')"><input type="radio" name="ys'+n+'imax"><span class="dot"></span>Yes</label><label class="yb" onclick="py(this,\'yn_s'+n+'_imax\',\'no\')"><input type="radio" name="ys'+n+'imax"><span class="dot"></span>No</label></div></div>'+
-    '<div class="field"><label class="fl">String '+n+' — Enter Total plant Capacity (W)</label><input type="number" placeholder="Enter W"></div>'+
-    '<div class="field"><label class="fl">String '+n+' — Use 2-in-1-out MC4 connector (32A) when connecting two strings in parallel (If Applicable)</label><div class="yn" id="yn_s'+n+'_mc4"><label class="yb" onclick="py(this,\'yn_s'+n+'_mc4\',\'yes\')"><input type="radio" name="ys'+n+'mc4"><span class="dot"></span>Yes</label><label class="yb" onclick="py(this,\'yn_s'+n+'_mc4\',\'no\')"><input type="radio" name="ys'+n+'mc4"><span class="dot"></span>No</label></div></div>'+
-    '<div class="field"><label class="fl">String '+n+' — Enter Number of PV strings in parallel per MPPT</label><input type="number" placeholder="Enter count"></div>';
-    c.appendChild(d);
-  }
+// ─── CONFIG ──────────────────────────────────────────────────────────────────
+var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwH7zTgfG4h_d_nMUDl8rRbDR0oxoi-MO_wUwG6PQfzgO2i53tnwmCr5r1uWOw0xAUY/exec'; // ← paste your Web App URL
+
+var nStr = 0;
+
+// ─── CARD TOGGLE ─────────────────────────────────────────────────────────────
+function tog(h) {
+  var b = h.nextElementSibling, c = h.querySelector('.cv');
+  b.classList.toggle('col');
+  c.classList.toggle('open');
 }
-function bBat(){
-  var c=document.getElementById('bc');c.innerHTML='';
-  for(var b=1;b<=14;b++){
-    var d=document.createElement('div');
-    d.innerHTML=(b>1?'<hr class="div">':'')+'<div class="bh">🔋 Battery '+b+' Details (Pack-'+b+')</div>'+
-    '<div class="field"><label class="fl">Battery '+b+' — Enter Battery Serial Number</label><input type="text" placeholder="Enter serial number"></div>'+
-    '<div class="field"><label class="fl">Battery '+b+' — Mode of Charging (Input AC Grid / Solar / DG)</label><select><option value="">— Select mode —</option><option>Input AC Grid</option><option>Solar</option><option>DG</option></select></div>'+
-    '<div class="field"><label class="fl">Battery '+b+' — Enter Battery Voltage (V)</label><input type="number" placeholder="Enter V"></div>'+
-    '<div class="g3"><div class="field"><label class="fl">Battery '+b+' — Battery charging current (A)</label><input type="number" placeholder="Enter A"></div>'+
-    '<div class="field"><label class="fl">Battery '+b+' — Battery Discharge current (A)</label><input type="number" placeholder="Enter A"></div>'+
-    '<div class="field"><label class="fl">Battery '+b+' — SOC % (Discharging condition)</label><input type="number" placeholder="Enter %"></div></div>'+
-    '<div class="field"><label class="fl">Battery '+b+' — Upload screenshot of PURE BMS app (Pack-'+b+')</label>'+
-    '<div class="ar"><div class="uw"><label class="ul"><input type="file" id="f_bat'+b+'" accept="image/*" onchange="ac(this,\'c_bat'+b+'\')"><span class="ui">📎</span><div class="ut"><strong>Attach Battery '+b+' Screenshot</strong><span>JPG or PNG</span></div></label><div class="chips" id="c_bat'+b+'"></div></div>'+
-    '<div class="rb"><a class="rt" onclick="r(\'Battery '+b+' BMS Reference\',\'ref-bat-bms.jpg\',\'Screenshot of PURE BMS App showing Battery '+b+' (Pack-'+b+') status, SOC, voltage and current readings.\')"><span class="ri">🖼️</span><small>Reference</small></a></div></div></div>';
-    c.appendChild(d);
-  }
-}
-function ss(n){
-  nStr=n;
-  for(var i=1;i<=12;i++){var e=document.getElementById('sb'+i);if(e)e.classList.toggle('show',i<=n)}
+
+// ─── CONDITIONAL VISIBILITY ──────────────────────────────────────────────────
+function hf() {
+  var v = document.getElementById('fb').value;
+  document.getElementById('sp').classList.toggle('hidden', v !== 'pure');
+  document.getElementById('sd').classList.toggle('hidden', v !== 'dealer');
   pg();
 }
-function ac(inp,cid){
-  var box=document.getElementById(cid);box.innerHTML='';
-  Array.from(inp.files).forEach(function(f){
-    var ch=document.createElement('div');ch.className='chip';
-    ch.innerHTML='<span>📎 '+f.name+'</span><span class="chipx" onclick="this.parentElement.remove()">✕</span>';
-    box.appendChild(ch);
-  });pg();
+function hs() {
+  var v = document.getElementById('ss').value;
+  document.getElementById('ssec').classList.toggle('hidden', v !== 'yes');
+  document.getElementById('smon').classList.toggle('hidden', v !== 'yes');
+  pg();
 }
-function r(title,file,desc){
-  document.getElementById('mtitle').textContent=title;
-  document.getElementById('mdesc').textContent=desc;
-  var base=file.replace(/\.[^.]+$/,'');
-  var imgAttempts=['images/'+base+'.jpg','images/'+base+'.png','images/'+base+'.JPG','images/'+base+'.PNG'];
-  var vidAttempts=['images/'+base+'.mp4','images/'+base+'.MP4','images/'+base+'.mov','images/'+base+'.webm'];
-  var pdfUrl='images/'+base+'.pdf';
-  document.getElementById('ref-img-wrap').style.display='none';
-  document.getElementById('ref-vid-wrap').style.display='none';
-  var im=document.getElementById('mimg');
-  var ie=document.getElementById('ref-img-err');
-  var fn=document.getElementById('ref-filename');
-  var vEl=document.getElementById('mvid');
-  var vs=document.getElementById('mvid-src');
-  var ve=document.getElementById('ref-vid-err');
-  var vf=document.getElementById('ref-vid-filename');
-  im.style.display='none';ie.style.display='none';
-  vEl.style.display='none';ve.style.display='none';
-  fn.textContent=file;vf.textContent=file;
-  var existing=document.getElementById('pdf-open-btn');
-  if(existing)existing.remove();
-  var imgIdx=0;
-  function tryImg(){
-    if(imgIdx<imgAttempts.length){
-      im.onload=function(){document.getElementById('ref-img-wrap').style.display='block';im.style.display='block';ie.style.display='none'};
-      im.onerror=function(){imgIdx++;tryImg()};
-      im.src=imgAttempts[imgIdx++];
-    } else {tryVid();}
+
+// ─── YES/NO BUTTONS ──────────────────────────────────────────────────────────
+function py(el, gid, val) {
+  document.querySelectorAll('#' + gid + ' .yb').forEach(function(b) {
+    b.classList.remove('yes', 'no');
+  });
+  el.classList.add(val);
+  pg();
+}
+
+// ─── READ YES/NO GROUP ───────────────────────────────────────────────────────
+function getYN(gid) {
+  var el = document.querySelector('#' + gid + ' .yb.yes, #' + gid + ' .yb.no');
+  if (!el) return '';
+  return el.classList.contains('yes') ? 'Yes' : 'No';
+}
+
+// ─── STRING SECTIONS (build once) ────────────────────────────────────────────
+function bStr() {
+  var c = document.getElementById('stc'); c.innerHTML = '';
+  for (var n = 1; n <= 12; n++) {
+    var d = document.createElement('div');
+    d.className = 'sb'; d.id = 'sb' + n;
+    d.innerHTML = (n > 1 ? '<hr class="div">' : '') +
+      '<div class="sh">⚡ String ' + n + ' Details</div>' +
+      '<div class="field"><label class="fl">String ' + n + ' — Enter the number of modules connected in series (Note: N series = 450 / Voltage at maximum power of one panel (Voc))</label><input type="number" id="s' + n + '_series" placeholder="Enter count"></div>' +
+      '<div class="field"><label class="fl">String ' + n + ' — Enter the string voltage VDC (V)</label><input type="number" id="s' + n + '_vdc" placeholder="Enter V"></div>' +
+      '<div class="field"><label class="fl">String ' + n + ' — Confirm that the each string voltage did not exceed 450V per string</label><div class="yn" id="yn_s' + n + '_450"><label class="yb" onclick="py(this,\'yn_s' + n + '_450\',\'yes\')"><input type="radio" name="ys' + n + '450"><span class="dot"></span>Yes</label><label class="yb" onclick="py(this,\'yn_s' + n + '_450\',\'no\')"><input type="radio" name="ys' + n + '450"><span class="dot"></span>No</label></div></div>' +
+      '<div class="field"><label class="fl">String ' + n + ' — Enter total system size (DC Watts) per string (W)</label><input type="number" id="s' + n + '_watts" placeholder="Enter W"></div>' +
+      '<div class="field"><label class="fl">String ' + n + ' — Confirm that it did not exceed 5500 watts per string</label><div class="yn" id="yn_s' + n + '_5500"><label class="yb" onclick="py(this,\'yn_s' + n + '_5500\',\'yes\')"><input type="radio" name="ys' + n + '5500"><span class="dot"></span>Yes</label><label class="yb" onclick="py(this,\'yn_s' + n + '_5500\',\'no\')"><input type="radio" name="ys' + n + '5500"><span class="dot"></span>No</label></div></div>' +
+      '<div class="field"><label class="fl">String ' + n + ' — Confirm that Imax did not exceed 18A per string</label><div class="yn" id="yn_s' + n + '_imax"><label class="yb" onclick="py(this,\'yn_s' + n + '_imax\',\'yes\')"><input type="radio" name="ys' + n + 'imax"><span class="dot"></span>Yes</label><label class="yb" onclick="py(this,\'yn_s' + n + '_imax\',\'no\')"><input type="radio" name="ys' + n + 'imax"><span class="dot"></span>No</label></div></div>' +
+      '<div class="field"><label class="fl">String ' + n + ' — Enter Total plant Capacity (W)</label><input type="number" id="s' + n + '_plant" placeholder="Enter W"></div>' +
+      '<div class="field"><label class="fl">String ' + n + ' — Use 2-in-1-out MC4 connector (32A) when connecting two strings in parallel (If Applicable)</label><div class="yn" id="yn_s' + n + '_mc4"><label class="yb" onclick="py(this,\'yn_s' + n + '_mc4\',\'yes\')"><input type="radio" name="ys' + n + 'mc4"><span class="dot"></span>Yes</label><label class="yb" onclick="py(this,\'yn_s' + n + '_mc4\',\'no\')"><input type="radio" name="ys' + n + 'mc4"><span class="dot"></span>No</label></div></div>' +
+      '<div class="field"><label class="fl">String ' + n + ' — Enter Number of PV strings in parallel per MPPT</label><input type="number" id="s' + n + '_mppt" placeholder="Enter count"></div>';
+    c.appendChild(d);
   }
-  function tryVid(){
-    var vidIdx=0;
-    function nextVid(){
-      if(vidIdx<vidAttempts.length){
-        var tv=document.createElement('video');
-        var src=vidAttempts[vidIdx];
-        tv.onloadedmetadata=function(){vs.src=src;vEl.load();document.getElementById('ref-vid-wrap').style.display='block';vEl.style.display='block';ve.style.display='none'};
-        tv.onerror=function(){vidIdx++;nextVid()};
-        tv.src=src;
-      } else {tryPdf();}
+}
+
+// ─── BATTERY SECTIONS (build once) ───────────────────────────────────────────
+function bBat() {
+  var c = document.getElementById('bc'); c.innerHTML = '';
+  for (var b = 1; b <= 14; b++) {
+    var d = document.createElement('div');
+    d.innerHTML = (b > 1 ? '<hr class="div">' : '') +
+      '<div class="bh">🔋 Battery ' + b + ' Details (Pack-' + b + ')</div>' +
+      '<div class="field"><label class="fl">Battery ' + b + ' — Enter Battery Serial Number</label><input type="text" id="bat' + b + '_serial" placeholder="Enter serial number"></div>' +
+      '<div class="field"><label class="fl">Battery ' + b + ' — Mode of Charging (Input AC Grid / Solar / DG)</label><select id="bat' + b + '_mode"><option value="">— Select mode —</option><option>Input AC Grid</option><option>Solar</option><option>DG</option></select></div>' +
+      '<div class="field"><label class="fl">Battery ' + b + ' — Enter Battery Voltage (V)</label><input type="number" id="bat' + b + '_v" placeholder="Enter V"></div>' +
+      '<div class="g3">' +
+      '<div class="field"><label class="fl">Battery ' + b + ' — Battery charging current (A)</label><input type="number" id="bat' + b + '_ci" placeholder="Enter A"></div>' +
+      '<div class="field"><label class="fl">Battery ' + b + ' — Battery Discharge current (A)</label><input type="number" id="bat' + b + '_di" placeholder="Enter A"></div>' +
+      '<div class="field"><label class="fl">Battery ' + b + ' — SOC % (Discharging condition)</label><input type="number" id="bat' + b + '_soc" placeholder="Enter %"></div></div>' +
+      '<div class="field"><label class="fl">Battery ' + b + ' — Upload screenshot of PURE BMS app (Pack-' + b + ')</label>' +
+      '<div class="ar"><div class="uw"><label class="ul"><input type="file" id="f_bat' + b + '" accept="image/*" onchange="ac(this,\'c_bat' + b + '\')"><span class="ui">📎</span><div class="ut"><strong>Attach Battery ' + b + ' Screenshot</strong><span>JPG or PNG</span></div></label><div class="chips" id="c_bat' + b + '"></div></div>' +
+      '<div class="rb"><a class="rt" onclick="r(\'Battery ' + b + ' BMS Reference\',\'ref-bat-bms.jpg\',\'Screenshot of PURE BMS App showing Battery ' + b + ' (Pack-' + b + ') status, SOC, voltage and current readings.\')"><span class="ri">🖼️</span><small>Reference</small></a></div></div></div>';
+    c.appendChild(d);
+  }
+}
+
+// ─── STRING COUNT SELECTOR ────────────────────────────────────────────────────
+function ss(n) {
+  nStr = n;
+  for (var i = 1; i <= 12; i++) {
+    var e = document.getElementById('sb' + i);
+    if (e) e.classList.toggle('show', i <= n);
+  }
+  pg();
+}
+
+// ─── FILE CHIP DISPLAY ────────────────────────────────────────────────────────
+function ac(inp, cid) {
+  var box = document.getElementById(cid); box.innerHTML = '';
+  Array.from(inp.files).forEach(function(f) {
+    var ch = document.createElement('div'); ch.className = 'chip';
+    ch.innerHTML = '<span>📎 ' + f.name + '</span><span class="chipx" onclick="this.parentElement.remove()">✕</span>';
+    box.appendChild(ch);
+  });
+  pg();
+}
+
+// ─── REFERENCE MODAL ─────────────────────────────────────────────────────────
+function r(title, file, desc) {
+  document.getElementById('mtitle').textContent = title;
+  document.getElementById('mdesc').textContent = desc;
+  var base = file.replace(/\.[^.]+$/, '');
+  var imgAttempts = ['images/' + base + '.jpg', 'images/' + base + '.png', 'images/' + base + '.JPG', 'images/' + base + '.PNG'];
+  var vidAttempts = ['images/' + base + '.mp4', 'images/' + base + '.MP4', 'images/' + base + '.mov', 'images/' + base + '.webm'];
+  var pdfUrl = 'images/' + base + '.pdf';
+  document.getElementById('ref-img-wrap').style.display = 'none';
+  document.getElementById('ref-vid-wrap').style.display = 'none';
+  var im = document.getElementById('mimg');
+  var ie = document.getElementById('ref-img-err');
+  var fn = document.getElementById('ref-filename');
+  var vEl = document.getElementById('mvid');
+  var vs = document.getElementById('mvid-src');
+  var ve = document.getElementById('ref-vid-err');
+  var vf = document.getElementById('ref-vid-filename');
+  im.style.display = 'none'; ie.style.display = 'none';
+  vEl.style.display = 'none'; ve.style.display = 'none';
+  fn.textContent = file; vf.textContent = file;
+  var existing = document.getElementById('pdf-open-btn');
+  if (existing) existing.remove();
+  var imgIdx = 0;
+  function tryImg() {
+    if (imgIdx < imgAttempts.length) {
+      im.onload = function() { document.getElementById('ref-img-wrap').style.display = 'block'; im.style.display = 'block'; ie.style.display = 'none'; };
+      im.onerror = function() { imgIdx++; tryImg(); };
+      im.src = imgAttempts[imgIdx++];
+    } else { tryVid(); }
+  }
+  function tryVid() {
+    var vidIdx = 0;
+    function nextVid() {
+      if (vidIdx < vidAttempts.length) {
+        var tv = document.createElement('video');
+        var src = vidAttempts[vidIdx];
+        tv.onloadedmetadata = function() { vs.src = src; vEl.load(); document.getElementById('ref-vid-wrap').style.display = 'block'; vEl.style.display = 'block'; ve.style.display = 'none'; };
+        tv.onerror = function() { vidIdx++; nextVid(); };
+        tv.src = src;
+      } else { tryPdf(); }
     }
     nextVid();
   }
-function tryPdf(){
-    fetch(pdfUrl,{method:'HEAD'}).then(function(res){
-      if(res.ok){
-        document.getElementById('ref-img-wrap').style.display='block';
-        ie.style.display='block';
-        ie.style.background='none';
-        ie.style.padding='20px 0';
-        var existingContent=ie.querySelectorAll('.pdf-hide');
-        existingContent.forEach(function(el){el.style.display='none'});
-        var iconEl=ie.querySelector('div');
-        if(iconEl)iconEl.style.display='none';
-        var strongEl=ie.querySelector('strong');
-        if(strongEl)strongEl.style.display='none';
-        var spanEl=ie.querySelector('span');
-        if(spanEl)spanEl.style.display='none';
-        var existing=document.getElementById('pdf-open-btn');
-        if(existing)existing.remove();
-        var btn=document.createElement('a');
-        btn.id='pdf-open-btn';btn.href=pdfUrl;btn.target='_blank';
-        btn.style.cssText='display:inline-block;padding:14px 28px;background:var(--g7);color:#fff;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px;';
-        btn.textContent='📄 Open PDF Reference';
+  function tryPdf() {
+    fetch(pdfUrl, { method: 'HEAD' }).then(function(res) {
+      if (res.ok) {
+        document.getElementById('ref-img-wrap').style.display = 'block';
+        ie.style.display = 'block'; ie.style.background = 'none'; ie.style.padding = '20px 0';
+        var existingContent = ie.querySelectorAll('.pdf-hide');
+        existingContent.forEach(function(el) { el.style.display = 'none'; });
+        var iconEl = ie.querySelector('div'); if (iconEl) iconEl.style.display = 'none';
+        var strongEl = ie.querySelector('strong'); if (strongEl) strongEl.style.display = 'none';
+        var spanEl = ie.querySelector('span'); if (spanEl) spanEl.style.display = 'none';
+        var existing2 = document.getElementById('pdf-open-btn'); if (existing2) existing2.remove();
+        var btn = document.createElement('a');
+        btn.id = 'pdf-open-btn'; btn.href = pdfUrl; btn.target = '_blank';
+        btn.style.cssText = 'display:inline-block;padding:14px 28px;background:var(--g7);color:#fff;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px;';
+        btn.textContent = '📄 Open PDF Reference';
         ie.appendChild(btn);
-      } else {showMissing();}
-    }).catch(function(){showMissing();});
+      } else { showMissing(); }
+    }).catch(function() { showMissing(); });
   }
-function showMissing(){
-    document.getElementById('ref-img-wrap').style.display='block';
-    ie.style.display='block';
-    ie.style.background='';
-    ie.style.padding='';
-    var iconEl=ie.querySelector('div');
-    if(iconEl)iconEl.style.display='';
-    var strongEl=ie.querySelector('strong');
-    if(strongEl)strongEl.style.display='';
-    var spanEl=ie.querySelector('span');
-    if(spanEl)spanEl.style.display='';
-    fn.textContent=file;
+  function showMissing() {
+    document.getElementById('ref-img-wrap').style.display = 'block'; ie.style.display = 'block';
+    ie.style.background = ''; ie.style.padding = '';
+    var iconEl = ie.querySelector('div'); if (iconEl) iconEl.style.display = '';
+    var strongEl = ie.querySelector('strong'); if (strongEl) strongEl.style.display = '';
+    var spanEl = ie.querySelector('span'); if (spanEl) spanEl.style.display = '';
+    fn.textContent = file;
   }
   tryImg();
   document.getElementById('modal').classList.add('open');
 }
-function closeRef(){var v=document.getElementById('mvid');if(v){v.pause();v.currentTime=0;}document.getElementById('modal').classList.remove('open')}
-function cm(e){if(e.target===document.getElementById('modal'))closeRef();}
-function pg(){
-  var ins=document.querySelectorAll('input:not([type=radio]):not([type=password]):not([type=file]),select,textarea');
-  var f=0,t=0;
-  ins.forEach(function(e){if(e.readOnly)return;t++;if(e.value&&e.value.trim()!=='')f++});
-  var p=Math.min(100,Math.round((f/Math.max(t,1))*100));
-  document.getElementById('pbf').style.width=p+'%';
-  document.getElementById('pbp').textContent=p+'%';
-  var m=['Getting started...','Keep going!','Good progress!','Almost there!','Nearly complete!','Ready to submit! ✓'];
-  document.getElementById('pbl').textContent=m[Math.min(Math.floor(p/20),5)];
+function closeRef() {
+  var v = document.getElementById('mvid');
+  if (v) { v.pause(); v.currentTime = 0; }
+  document.getElementById('modal').classList.remove('open');
 }
-function toast(msg){var t=document.getElementById('tst');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show')},3000)}
-function sub(){toast('✓ Form submitted successfully!');document.getElementById('fm').style.display='none';document.getElementById('suc').classList.add('show');window.scrollTo({top:0,behavior:'smooth'})}
-function rst(){document.getElementById('suc').classList.remove('show');document.getElementById('fm').style.display='block';window.scrollTo({top:0,behavior:'smooth'})}
-document.addEventListener('input',pg);
-document.addEventListener('change',pg);
-bStr();bBat();pg();
-</script>
+function cm(e) { if (e.target === document.getElementById('modal')) closeRef(); }
 
+// ─── PROGRESS BAR ────────────────────────────────────────────────────────────
+function pg() {
+  var ins = document.querySelectorAll('input:not([type=radio]):not([type=password]):not([type=file]),select,textarea');
+  var f = 0, t = 0;
+  ins.forEach(function(e) {
+    if (e.readOnly) return;
+    t++;
+    if (e.value && e.value.trim() !== '') f++;
+  });
+  var p = Math.min(100, Math.round((f / Math.max(t, 1)) * 100));
+  document.getElementById('pbf').style.width = p + '%';
+  document.getElementById('pbp').textContent = p + '%';
+  var m = ['Getting started...', 'Keep going!', 'Good progress!', 'Almost there!', 'Nearly complete!', 'Ready to submit! ✓'];
+  document.getElementById('pbl').textContent = m[Math.min(Math.floor(p / 20), 5)];
+}
+
+// ─── TOAST ───────────────────────────────────────────────────────────────────
+function toast(msg, isError) {
+  var t = document.getElementById('tst');
+  t.textContent = msg;
+  t.style.background = isError ? 'var(--rd)' : 'var(--g7)';
+  t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show'); }, 4000);
+}
+
+// ─── HELPER: get value by ID safely ──────────────────────────────────────────
+function gv(id) {
+  var el = document.getElementById(id);
+  return el ? (el.value || '').trim() : '';
+}
+
+// ─── HELPER: file attached? ───────────────────────────────────────────────────
+function hasFile(chipsId) {
+  var box = document.getElementById(chipsId);
+  return (box && box.children.length > 0) ? 'Yes' : 'No';
+}
+
+// ─── COLLECT ALL FORM DATA → COLUMN MAP ──────────────────────────────────────
+function collectData() {
+  var d = {};
+
+  // ── Form Details ──
+  d['Form_Filled_By'] = gv('fb');
+
+  // ── PuRE Team Details ──
+  var pureInputs = document.querySelectorAll('#sp .cb input[type=text], #sp .cb input[type=email]');
+  d['PuRE_Team_Concern_Name'] = pureInputs[0] ? pureInputs[0].value.trim() : '';
+  d['PuRE_Team_Email_ID']     = pureInputs[1] ? pureInputs[1].value.trim() : '';
+
+  // ── Dealer Details ──
+  var dealerInputs = document.querySelectorAll('#sd .cb input[type=text], #sd .cb input[type=email]');
+  d['Dealer_Showroom_Name']          = dealerInputs[0] ? dealerInputs[0].value.trim() : '';
+  d['Dealer_Distributor_Email_ID']   = dealerInputs[1] ? dealerInputs[1].value.trim() : '';
+
+  // ── Customer Details ──
+  // Card 3 (Customer Details) — grab inputs in DOM order
+  var custCard = document.querySelectorAll('.card')[2];
+  var custInputs = custCard ? custCard.querySelectorAll('input, textarea') : [];
+  d['Customer_Name']          = custInputs[0] ? custInputs[0].value.trim() : '';
+  d['Customer_Mobile_Number'] = custInputs[1] ? custInputs[1].value.trim() : '';
+  d['Customer_Email_ID']      = custInputs[2] ? custInputs[2].value.trim() : '';
+  d['Customer_State']         = custInputs[3] ? custInputs[3].value.trim() : '';
+  d['Customer_City']          = custInputs[4] ? custInputs[4].value.trim() : '';
+  d['Customer_Pincode']       = custInputs[5] ? custInputs[5].value.trim() : '';
+  d['Customer_Address']       = custInputs[6] ? custInputs[6].value.trim() : '';
+
+  // ── Product Details ──
+  d['PuREPower_Model']         = 'PuREPower 60.0';
+  var prodCard = document.querySelectorAll('.card')[3];
+  var prodInputs = prodCard ? prodCard.querySelectorAll('input[type=text], input[type=number], input[type=date]') : [];
+  // readonly first = PuREPower_Model, then Model_Number, Serial, INV, Date
+  d['Model_Number']           = prodInputs[1] ? prodInputs[1].value.trim() : '';
+  d['Product_Serial_Number']  = prodInputs[2] ? prodInputs[2].value.trim() : '';
+  d['INV_Code']               = prodInputs[3] ? prodInputs[3].value.trim() : '';
+  d['Installation_Start_Date']= prodInputs[4] ? prodInputs[4].value.trim() : '';
+
+  // ── Solar Connection ──
+  d['Solar_Connected'] = gv('ss') === 'yes' ? 'Yes' : (gv('ss') === 'no' ? 'No' : '');
+
+  // ── Solar Details ──
+  d['SLD_Document_Attached']            = hasFile('c_sld');
+  // PV Module Manufacturer — first text input in #ssec after the SLD field
+  var ssecInputs = document.querySelectorAll('#ssec input[type=text]');
+  d['PV_Module_Manufacturer_Name']      = ssecInputs[0] ? ssecInputs[0].value.trim() : '';
+  d['Solar_Module_Datasheet_Attached']  = hasFile('c_ds');
+
+  var ssecNums = document.querySelectorAll('#ssec input[type=number]');
+  // Order in DOM: Wp, Voc, Isc, Imax, then later readings
+  d['Module_Maximum_Power_Wp']          = ssecNums[0] ? ssecNums[0].value.trim() : '';
+  d['Module_Open_Circuit_Voltage_Voc']  = ssecNums[1] ? ssecNums[1].value.trim() : '';
+  d['Module_Short_Circuit_Current_Isc'] = ssecNums[2] ? ssecNums[2].value.trim() : '';
+  d['Module_Maximum_Current_Imax']      = ssecNums[3] ? ssecNums[3].value.trim() : '';
+
+  d['Cable_1C_6sqmm_Copper_Through_Conduit'] = getYN('yn_c');
+
+  // Strings select
+  d['Number_Of_Strings_Connected'] = gv('stpills');
+
+  // DC Distribution
+  d['DC_Switch_Installed_For_Individual_Strings']           = getYN('yn_dc');
+  d['DC_Lugs_Positive_Negative_Crimped_Before_Connecting']  = getYN('yn_cr');
+  d['Strings_Connected_Correct_Polarity']                   = getYN('yn_pl');
+  d['DC_Distribution_Box_DCDB_Installed']                   = hasFile('c_db');
+  d['Each_Fuse_Rating_32A_Confirmed']                       = hasFile('c_fu');
+  d['DC_Surge_Protection_Device_1000V_Installed']           = hasFile('c_sp');
+  d['SPD_Grounded_To_Earth_Pit']                            = hasFile('c_se');
+
+  // Solar PV Input Readings (ssecNums[4..7])
+  d['PV_Input_Voltage_V']        = ssecNums[4] ? ssecNums[4].value.trim() : '';
+  d['PV_Input_Current_A']        = ssecNums[5] ? ssecNums[5].value.trim() : '';
+  d['PV_Input_Power_W']          = ssecNums[6] ? ssecNums[6].value.trim() : '';
+  d['Today_Solar_Generation_kWh']= ssecNums[7] ? ssecNums[7].value.trim() : '';
+
+  d['Battery_Charging_Through_Solar']           = getYN('yn_bs');
+  d['P1_Phase_Display_Picture_Solar_Side_Attached'] = hasFile('c_p1');
+  d['P2_Phase_Display_Picture_Solar_Side_Attached'] = hasFile('c_p2');
+  d['P3_Phase_Display_Picture_Solar_Side_Attached'] = hasFile('c_p3');
+
+  // Solar Load Test
+  d['Load_Test_Conducted_In_OffGrid_Solar_Mode']      = getYN('yn_lt');
+  d['Battery_SOC_Between_99_To_100_Before_Solar_Test']= hasFile('c_sc');
+  d['Solar_Generation_Atleast_50_Percent_Of_Plant_Size'] = hasFile('c_s5');
+  d['All_Nominal_Loads_Running_In_Solar_Mode']        = getYN('yn_nl');
+
+  // Solar load test output powers (kW) — ssecNums[8..13]
+  d['Output_Power_kW_RPhase_P1_Display1'] = ssecNums[8]  ? ssecNums[8].value.trim()  : '';
+  d['Output_Power_kW_RPhase_P1_Display2'] = ssecNums[9]  ? ssecNums[9].value.trim()  : '';
+  d['Output_Power_kW_YPhase_P2_Display1'] = ssecNums[10] ? ssecNums[10].value.trim() : '';
+  d['Output_Power_kW_YPhase_P2_Display2'] = ssecNums[11] ? ssecNums[11].value.trim() : '';
+  d['Output_Power_kW_BPhase_P3_Display1'] = ssecNums[12] ? ssecNums[12].value.trim() : '';
+  d['Output_Power_kW_BPhase_P3_Display2'] = ssecNums[13] ? ssecNums[13].value.trim() : '';
+
+  d['Nominal_Load_Video_Picture_Each_Phase_Attached'] = hasFile('c_nv');
+  d['All_Full_Loads_Running_In_Solar_Mode']           = getYN('yn_fl');
+
+  // Full load kVA — ssecNums[14..19]
+  d['Output_Power_kVA_RPhase_P1_Display1'] = ssecNums[14] ? ssecNums[14].value.trim() : '';
+  d['Output_Power_kVA_RPhase_P1_Display2'] = ssecNums[15] ? ssecNums[15].value.trim() : '';
+  d['Output_Power_kVA_YPhase_P2_Display1'] = ssecNums[16] ? ssecNums[16].value.trim() : '';
+  d['Output_Power_kVA_YPhase_P2_Display2'] = ssecNums[17] ? ssecNums[17].value.trim() : '';
+  d['Output_Power_kVA_BPhase_P3_Display1'] = ssecNums[18] ? ssecNums[18].value.trim() : '';
+  d['Output_Power_kVA_BPhase_P3_Display2'] = ssecNums[19] ? ssecNums[19].value.trim() : '';
+
+  // DC Earthing — ssecNums[20]
+  d['DC_Earthing_Resistance_Value_Ohm']                    = ssecNums[20] ? ssecNums[20].value.trim() : '';
+  d['DC_Earthing_Connected_Separate_Pit_Below_5_Ohm']      = getYN('yn_de');
+
+  // ── Per-String Data ──
+  for (var n = 1; n <= 12; n++) {
+    var pfx = 'String' + n + '_';
+    d[pfx + 'Number_Of_Modules_In_Series']           = gv('s' + n + '_series');
+    d[pfx + 'String_Voltage_VDC']                    = gv('s' + n + '_vdc');
+    d[pfx + 'Voltage_Not_Exceeding_450V_Per_String'] = getYN('yn_s' + n + '_450');
+    d[pfx + 'Total_System_Size_DC_Watts_Per_String'] = gv('s' + n + '_watts');
+    d[pfx + 'Power_Not_Exceeding_5500_Watts_Per_String'] = getYN('yn_s' + n + '_5500');
+    d[pfx + 'Imax_Not_Exceeding_18A_Per_String']     = getYN('yn_s' + n + '_imax');
+    d[pfx + 'Total_Plant_Capacity_W']                = gv('s' + n + '_plant');
+    d[pfx + 'MC4_Connector_32A_Used_For_Parallel']   = getYN('yn_s' + n + '_mc4');
+    d[pfx + 'Number_Of_PV_Strings_Parallel_Per_MPPT']= gv('s' + n + '_mppt');
+  }
+
+  // ── Solar Monitoring ──
+  d['WiFi_Router_Within_3_Meters_Of_PuREPower_Solar_Monitoring'] = hasFile('c_wf');
+  d['Dongle_P1_RPhase_Photo1_Attached'] = hasFile('c_d1a');
+  d['Dongle_P1_RPhase_Photo2_Attached'] = hasFile('c_d1b');
+  d['Dongle_P2_YPhase_Photo1_Attached'] = hasFile('c_d2a');
+  d['Dongle_P2_YPhase_Photo2_Attached'] = hasFile('c_d2b');
+  d['Dongle_P3_BPhase_Photo1_Attached'] = hasFile('c_d3a');
+  d['Dongle_P3_BPhase_Photo2_Attached'] = hasFile('c_d3b');
+  d['App_Main_Page_P1_RPhase_Screenshot1_Attached'] = hasFile('c_a1a');
+  d['App_Main_Page_P1_RPhase_Screenshot2_Attached'] = hasFile('c_a1b');
+  d['App_Main_Page_P2_YPhase_Screenshot1_Attached'] = hasFile('c_a2a');
+  d['App_Main_Page_P2_YPhase_Screenshot2_Attached'] = hasFile('c_a2b');
+  d['App_Main_Page_P3_BPhase_Screenshot1_Attached'] = hasFile('c_a3a');
+  d['App_Main_Page_P3_BPhase_Screenshot2_Attached'] = hasFile('c_a3b');
+
+  // Solar of Things App login — inputs inside #smon
+  var smonEmails = document.querySelectorAll('#smon input[type=email]');
+  d['Solar_Of_Things_App_Login_Email'] = smonEmails[0] ? smonEmails[0].value.trim() : '';
+  d['Grid_Export_Enabled_All_Phases_Net_Meter_Installed'] = getYN('yn_ex');
+
+  // ── Electrical Checklist ──
+  d['Manual_Read_Before_Installation_Confirmed']        = getYN('yn_e0');
+  d['Cable_50sqmm_4Core_Copper_Through_Conduit']        = getYN('yn_e1');
+  d['Correct_Lug_Type_Cu_Or_Bimetallic_Confirmed']      = getYN('yn_e2');
+  d['AC_Distribution_Box_ACDB_Installed']               = hasFile('c_ac');
+  d['AC_MCB_Rated_4Pole_125A_Confirmed']                = getYN('yn_e4');
+  d['RYBNE_Connections_Correct_Phase_Sequence_No_Loose']= getYN('yn_e5');
+  d['Input_Output_Neutral_Not_Connected_Single_Point']  = getYN('yn_e6');
+  d['AC_Input_Breakers_MCB1_MCB2_Switched_ON']          = getYN('yn_e7');
+  d['Phase_Sequence_YPhase_BPhase_Interchanged_If_Needed'] = getYN('yn_e8');
+
+  // Grid voltage readings — numbered inputs inside electrical card
+  // Card 5 = Electrical (0-indexed: Form Details=0, Solar=1(hidden), Customer=2, Product=3, Solar Connection=4, Electrical=5 but let's use direct querySelector)
+  var elNums = document.querySelectorAll('.card:nth-child(6) input[type=number]');
+  // Phase-to-Phase R,Y,B (Display 1 only per column schema), then Phase-to-Neutral R,Y,B
+  d['Grid_Input_Voltage_PhaseToPhase_RPhase_Display1_V']    = elNums[0]  ? elNums[0].value.trim()  : '';
+  d['Grid_Input_Voltage_PhaseToPhase_YPhase_Display1_V']    = elNums[1]  ? elNums[1].value.trim()  : '';
+  d['Grid_Input_Voltage_PhaseToPhase_BPhase_Display1_V']    = elNums[2]  ? elNums[2].value.trim()  : '';
+  d['Grid_Input_Voltage_PhaseToNeutral_RPhase_Display1_V']  = elNums[3]  ? elNums[3].value.trim()  : '';
+  d['Grid_Input_Voltage_PhaseToNeutral_YPhase_Display1_V']  = elNums[4]  ? elNums[4].value.trim()  : '';
+  d['Grid_Input_Voltage_PhaseToNeutral_BPhase_Display1_V']  = elNums[5]  ? elNums[5].value.trim()  : '';
+  d['Grid_Input_Current_Display1_A']                        = elNums[6]  ? elNums[6].value.trim()  : '';
+  d['AC_Input_Frequency_Display1_Hz']                       = elNums[7]  ? elNums[7].value.trim()  : '';
+  d['Output_Power_On_Grid_Mode_Display1_W']                 = elNums[8]  ? elNums[8].value.trim()  : '';
+  d['Output_Voltage_PhaseToPhase_Display1_V']               = elNums[9]  ? elNums[9].value.trim()  : '';
+  d['Output_Voltage_PhaseToNeutral_Display1_V']             = elNums[10] ? elNums[10].value.trim() : '';
+  d['AC_Output_Frequency_Display1_Hz']                      = elNums[11] ? elNums[11].value.trim() : '';
+  d['Load_Percentage_RPhase_P1_Display1']                   = elNums[12] ? elNums[12].value.trim() : '';
+  d['Load_Segregation_Done_If_Exceeds_17kVA_Single_Phase']  = getYN('yn_ls');
+
+  // Battery Mode readings (elNums[13..])
+  d['Output_Power_Battery_Mode_RPhase_P1_Display1_W']       = elNums[13] ? elNums[13].value.trim() : '';
+  d['Output_Voltage_PhaseToPhase_BatteryMode_Display1_V']   = elNums[14] ? elNums[14].value.trim() : '';
+  d['Output_Voltage_PhaseToNeutral_BatteryMode_Display1_V'] = elNums[15] ? elNums[15].value.trim() : '';
+  d['AC_Output_Frequency_BatteryMode_Display1_Hz']          = elNums[16] ? elNums[16].value.trim() : '';
+  d['Load_Percentage_BatteryMode_RPhase_P1_Display1']       = elNums[17] ? elNums[17].value.trim() : '';
+
+  d['AC_Output_Display_Photo_Attached']                     = hasFile('c_ad');
+  d['Battery_SOC_Between_99_To_100_Before_Battery_Test']    = hasFile('c_bsc');
+  d['Battery_Load_Test_Video_Picture_Attached']             = hasFile('c_bt');
+
+  d['AC_Earthing_Resistance_Value_Ohm']                     = elNums[18] ? elNums[18].value.trim() : '';
+  d['Neutral_To_Earth_Voltage_Not_Exceeding_5V_Photo_Attached'] = hasFile('c_ne');
+  d['ELCB_Installed_Input_Side_Leakage_Current_Confirmed']  = getYN('yn_elcb');
+
+  // ── DG Section ──
+  var dgNums = document.querySelectorAll('.card:nth-child(7) input[type=number]');
+  d['Number_Of_Diesel_Generators']              = dgNums[0] ? dgNums[0].value.trim() : '';
+  d['Diesel_Generator_Rating_Photo_Attached']   = hasFile('c_dgr');
+  d['DG_Neutral_To_Earth_Voltage_Not_Exceeding_5V_Photo'] = hasFile('c_dgne');
+  d['DG_Earthing_Resistance_Value_Ohm']         = dgNums[1] ? dgNums[1].value.trim() : '';
+  d['DG_Output_Voltage_PhaseToPhase_RPhase_Display1_V'] = dgNums[2] ? dgNums[2].value.trim() : '';
+  d['DG_Output_Voltage_PhaseToPhase_YPhase_Display1_V'] = dgNums[3] ? dgNums[3].value.trim() : '';
+  d['DG_Output_Voltage_PhaseToPhase_BPhase_Display1_V'] = dgNums[4] ? dgNums[4].value.trim() : '';
+  d['DG_Output_Voltage_PhaseToNeutral_Display1_V']      = dgNums[5] ? dgNums[5].value.trim() : '';
+  d['DG_Mode_Confirmed_On_LED_Display']        = getYN('yn_dgm');
+  d['DG_Full_Load_Synchronized_With_PuREPower']= getYN('yn_dgs');
+  d['DG_Test_Run_For_15_Minutes_Full_Load']    = getYN('yn_dg15');
+  d['DG_Output_Power_Each_Phase_W']            = dgNums[6] ? dgNums[6].value.trim() : '';
+  d['DG_Load_Percentage_Each_Phase']           = dgNums[7] ? dgNums[7].value.trim() : '';
+  d['DG_AC_Output_Frequency_Hz']               = dgNums[8] ? dgNums[8].value.trim() : '';
+  d['Battery_Charging_Through_Diesel_Generator']     = getYN('yn_bdg');
+  d['Grid_Input_Supply_Switched_ON_After_DG_Test']   = getYN('yn_go');
+  d['PuREPower_Auto_Switched_Back_To_Grid_Mode']     = getYN('yn_as');
+  d['All_Loads_Running_Smoothly_After_Grid_Mode']    = getYN('yn_lg');
+
+  // ── Battery Details ──
+  d['WiFi_Router_Within_3_Meters_Of_PuREPower_Battery_Section'] = hasFile('c_wf2');
+  var bmsEmails = document.querySelectorAll('#bc ~ * input[type=email], .card:nth-child(8) input[type=email]');
+  // BMS app login is just before #bc inside the battery card
+  var bmsLoginEmail = document.querySelector('.card:nth-child(8) .cb > .g2 input[type=email]');
+  d['PURE_BMS_App_Login_Email'] = bmsLoginEmail ? bmsLoginEmail.value.trim() : '';
+
+  for (var b = 1; b <= 14; b++) {
+    var bp = 'Battery' + b + '_';
+    d[bp + 'Serial_Number']       = gv('bat' + b + '_serial');
+    d[bp + 'Mode_Of_Charging']    = gv('bat' + b + '_mode');
+    d[bp + 'Voltage_V']           = gv('bat' + b + '_v');
+    d[bp + 'Charging_Current_A']  = gv('bat' + b + '_ci');
+    d[bp + 'Discharge_Current_A'] = gv('bat' + b + '_di');
+    d[bp + 'SOC_Percentage']      = gv('bat' + b + '_soc');
+  }
+
+  // ── Mandatory Photos ──
+  d['PuREPower_Installation_Photo_Attached'] = hasFile('c_ip');
+  d['PuREPower_Label_Photo_Attached']        = hasFile('c_lp');
+
+  // ── Installer Details ──
+  // Last card inputs in DOM order
+  var instCard = document.querySelectorAll('.card:last-of-type')[0];
+  var instTexts = instCard ? instCard.querySelectorAll('input[type=text]') : [];
+  var instTels  = instCard ? instCard.querySelectorAll('input[type=tel]')  : [];
+  var instEmails= instCard ? instCard.querySelectorAll('input[type=email]'): [];
+  var instDates = instCard ? instCard.querySelectorAll('input[type=date]') : [];
+  var instTextareas = instCard ? instCard.querySelectorAll('textarea')     : [];
+
+  d['Installation_Done_By_Channel_Partner_Firm_Name'] = instTexts[0]  ? instTexts[0].value.trim()  : '';
+  d['Electrician_Name']                               = instTexts[1]  ? instTexts[1].value.trim()  : '';
+  d['Electrician_Mobile_Number']                      = instTels[0]   ? instTels[0].value.trim()   : '';
+  d['Electrician_Email_ID']                           = instEmails[0] ? instEmails[0].value.trim() : '';
+  d['Date_Of_Commissioning']                          = instDates[0]  ? instDates[0].value.trim()  : '';
+  d['Net_Meter_Installed_If_Solar_Connected']         = getYN('yn_nm');
+  d['Remarks_Additional_Observations']                = instTextareas[0] ? instTextareas[0].value.trim() : '';
+
+  return d;
+}
+
+// ─── SUBMIT ──────────────────────────────────────────────────────────────────
+function sub() {
+  // Basic required field validation
+  var requiredOk = true;
+  var missing = [];
+
+  if (!gv('fb'))  { missing.push('Form Filled By'); requiredOk = false; }
+
+  var fbVal = gv('fb');
+  if (fbVal === 'pure') {
+    var pureInputs = document.querySelectorAll('#sp .cb input');
+    if (!pureInputs[0] || !pureInputs[0].value.trim()) { missing.push('PuRE Team Concern Name'); requiredOk = false; }
+    if (!pureInputs[1] || !pureInputs[1].value.trim()) { missing.push('PuRE Team Email ID'); requiredOk = false; }
+  }
+  if (fbVal === 'dealer') {
+    var dealerInputs2 = document.querySelectorAll('#sd .cb input');
+    if (!dealerInputs2[0] || !dealerInputs2[0].value.trim()) { missing.push('Showroom Name'); requiredOk = false; }
+  }
+
+  var custCard2 = document.querySelectorAll('.card')[2];
+  var custInputs2 = custCard2 ? custCard2.querySelectorAll('input') : [];
+  if (!custInputs2[0] || !custInputs2[0].value.trim()) { missing.push('Customer Name'); requiredOk = false; }
+  if (!custInputs2[1] || !custInputs2[1].value.trim()) { missing.push('Customer Mobile Number'); requiredOk = false; }
+  if (!gv('ss')) { missing.push('Solar Connected (Yes/No)'); requiredOk = false; }
+
+  if (!requiredOk) {
+    toast('⚠️ Please fill: ' + missing.slice(0, 3).join(', ') + (missing.length > 3 ? '...' : ''), true);
+    return;
+  }
+
+  // Show loading state
+  var btn = document.querySelector('.sbtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span>⏳</span> Submitting...';
+
+  var payload = collectData();
+
+  fetch(APPS_SCRIPT_URL, {
+    method: 'POST',
+    mode: 'no-cors', // Apps Script requires no-cors
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  })
+  .then(function() {
+    // no-cors means we can't read the response body — assume success if no network error
+    btn.disabled = false;
+    btn.innerHTML = '<span>✓</span> Submit I&C Form';
+    document.getElementById('fm').style.display = 'none';
+    document.getElementById('suc').classList.add('show');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  })
+  .catch(function(err) {
+    btn.disabled = false;
+    btn.innerHTML = '<span>✓</span> Submit I&C Form';
+    toast('❌ Submission failed. Check your connection and try again.', true);
+    console.error('Submission error:', err);
+  });
+}
+
+function rst() {
+  document.getElementById('suc').classList.remove('show');
+  document.getElementById('fm').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+document.addEventListener('input', pg);
+document.addEventListener('change', pg);
+bStr();
+bBat();
+pg();
+</script>
 </body>
 </html>

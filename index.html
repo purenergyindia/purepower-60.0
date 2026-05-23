@@ -727,7 +727,67 @@ function ac(inp,cid){
 function r(title,file,desc){
   document.getElementById('mtitle').textContent=title;
   document.getElementById('mdesc').textContent=desc;
-  var isVid=/\.(mp4|webm|mov|avi)$/i.test(file);
+  var base=file.replace(/\.[^.]+$/,'');
+  var imgAttempts=['images/'+base+'.jpg','images/'+base+'.png','images/'+base+'.JPG','images/'+base+'.PNG'];
+  var vidAttempts=['images/'+base+'.mp4','images/'+base+'.MP4','images/'+base+'.mov','images/'+base+'.webm'];
+  var pdfUrl='images/'+base+'.pdf';
+  document.getElementById('ref-img-wrap').style.display='none';
+  document.getElementById('ref-vid-wrap').style.display='none';
+  var im=document.getElementById('mimg');
+  var ie=document.getElementById('ref-img-err');
+  var fn=document.getElementById('ref-filename');
+  var vEl=document.getElementById('mvid');
+  var vs=document.getElementById('mvid-src');
+  var ve=document.getElementById('ref-vid-err');
+  var vf=document.getElementById('ref-vid-filename');
+  im.style.display='none';ie.style.display='none';
+  vEl.style.display='none';ve.style.display='none';
+  fn.textContent=file;vf.textContent=file;
+  var existing=document.getElementById('pdf-open-btn');
+  if(existing)existing.remove();
+  var imgIdx=0;
+  function tryImg(){
+    if(imgIdx<imgAttempts.length){
+      im.onload=function(){document.getElementById('ref-img-wrap').style.display='block';im.style.display='block';ie.style.display='none'};
+      im.onerror=function(){imgIdx++;tryImg()};
+      im.src=imgAttempts[imgIdx++];
+    } else {tryVid();}
+  }
+  function tryVid(){
+    var vidIdx=0;
+    function nextVid(){
+      if(vidIdx<vidAttempts.length){
+        var tv=document.createElement('video');
+        var src=vidAttempts[vidIdx];
+        tv.onloadedmetadata=function(){vs.src=src;vEl.load();document.getElementById('ref-vid-wrap').style.display='block';vEl.style.display='block';ve.style.display='none'};
+        tv.onerror=function(){vidIdx++;nextVid()};
+        tv.src=src;
+      } else {tryPdf();}
+    }
+    nextVid();
+  }
+  function tryPdf(){
+    fetch(pdfUrl,{method:'HEAD'}).then(function(res){
+      if(res.ok){
+        document.getElementById('ref-img-wrap').style.display='block';
+        ie.style.display='block';
+        fn.textContent=base+'.pdf';
+        var btn=document.createElement('a');
+        btn.id='pdf-open-btn';btn.href=pdfUrl;btn.target='_blank';
+        btn.style.cssText='display:inline-block;margin-top:14px;padding:10px 20px;background:var(--g7);color:#fff;border-radius:8px;text-decoration:none;font-weight:600;font-size:13px;';
+        btn.textContent='📄 Open PDF Reference';
+        document.getElementById('ref-img-err').appendChild(btn);
+      } else {showMissing();}
+    }).catch(function(){showMissing();});
+  }
+  function showMissing(){
+    document.getElementById('ref-img-wrap').style.display='block';
+    ie.style.display='block';
+    fn.textContent=file;
+  }
+  tryImg();
+  document.getElementById('modal').classList.add('open');
+}
   document.getElementById('ref-img-wrap').style.display=isVid?'none':'block';
   document.getElementById('ref-vid-wrap').style.display=isVid?'block':'none';
   if(isVid){

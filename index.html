@@ -673,7 +673,7 @@ textarea{resize:vertical;min-height:90px;line-height:1.6}
 <script>
 // ─── CONFIG ──────────────────────────────────────────────────────────────────
 var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwH7zTgfG4h_d_nMUDl8rRbDR0oxoi-MO_wUwG6PQfzgO2i53tnwmCr5r1uWOw0xAUY/exec'; // ← paste your Web App URL
-
+console.log('URL loaded:', APPS_SCRIPT_URL);
 var nStr = 0;
 
 // ─── CARD TOGGLE ─────────────────────────────────────────────────────────────
@@ -1180,28 +1180,26 @@ function sub() {
   btn.innerHTML = '<span>⏳</span> Submitting...';
 
   var payload = collectData();
-
-  fetch(APPS_SCRIPT_URL, {
-    method: 'POST',
-    mode: 'no-cors', // Apps Script requires no-cors
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  })
-  .then(function() {
-    // no-cors means we can't read the response body — assume success if no network error
-    btn.disabled = false;
-    btn.innerHTML = '<span>✓</span> Submit I&C Form';
-    document.getElementById('fm').style.display = 'none';
-    document.getElementById('suc').classList.add('show');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  })
-  .catch(function(err) {
-    btn.disabled = false;
-    btn.innerHTML = '<span>✓</span> Submit I&C Form';
-    toast('❌ Submission failed. Check your connection and try again.', true);
-    console.error('Submission error:', err);
-  });
-}
+console.log('Submitting payload:', JSON.stringify(payload));
+var xhr = new XMLHttpRequest();
+xhr.open('POST', APPS_SCRIPT_URL);
+xhr.setRequestHeader('Content-Type', 'application/json');
+xhr.onload = function() {
+  console.log('Response:', xhr.responseText);
+  btn.disabled = false;
+  btn.innerHTML = '<span>✓</span> Submit I&C Form';
+  document.getElementById('fm').style.display = 'none';
+  document.getElementById('suc').classList.add('show');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+xhr.onerror = function() {
+  console.error('XHR Error');
+  btn.disabled = false;
+  btn.innerHTML = '<span>✓</span> Submit I&C Form';
+  toast('❌ Submission failed.', true);
+};
+xhr.send(JSON.stringify(payload));
+  
 
 function rst() {
   document.getElementById('suc').classList.remove('show');

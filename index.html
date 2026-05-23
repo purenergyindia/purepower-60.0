@@ -670,7 +670,6 @@ textarea{resize:vertical;min-height:90px;line-height:1.6}
 
 </div>
 <div class="toast" id="tst"></div>
-
 <script>
 var nStr=0;
 function tog(h){var b=h.nextElementSibling,c=h.querySelector('.cv');b.classList.toggle('col');c.classList.toggle('open')}
@@ -788,67 +787,7 @@ function r(title,file,desc){
   tryImg();
   document.getElementById('modal').classList.add('open');
 }
-  document.getElementById('ref-img-wrap').style.display=isVid?'none':'block';
-  document.getElementById('ref-vid-wrap').style.display=isVid?'block':'none';
-  if(isVid){
-    var vs=document.getElementById('mvid-src');
-    var ve=document.getElementById('ref-vid-err');
-    var vf=document.getElementById('ref-vid-filename');
-    var vEl=document.getElementById('mvid');
-    vEl.style.display='none'; ve.style.display='none'; vf.textContent=file;
-    vs.src='images/'+file; vEl.load(); vEl.style.display='block';
-    vEl.onerror=function(){vEl.style.display='none';ve.style.display='block'};
-  } else {
-    var im=document.getElementById('mimg');
-    var ie=document.getElementById('ref-img-err');
-    var fn=document.getElementById('ref-filename');
-    im.style.display='none'; ie.style.display='none'; fn.textContent=file;
-    // Try JPG → PNG → PDF in sequence
-    var base=file.replace(/\.[^.]+$/,'');
-    var attempts=['images/'+base+'.jpg','images/'+base+'.png','images/'+base+'.JPG','images/'+base+'.PNG'];
-    var idx=0;
-    function tryNext(){
-      if(idx<attempts.length){
-        im.src=attempts[idx++];
-        im.onload=function(){im.style.display='block';ie.style.display='none'};
-        im.onerror=function(){
-          // After all image formats fail, try PDF
-          if(idx>=attempts.length){
-            // Check if PDF exists by trying to open it
-            var pdfUrl='images/'+base+'.pdf';
-            fetch(pdfUrl,{method:'HEAD'}).then(function(res){
-              if(res.ok){
-                // PDF found — show PDF viewer button
-                im.style.display='none';
-                ie.style.display='block';
-                fn.textContent=base+'.pdf';
-                document.getElementById('ref-filename').textContent=base+'.pdf';
-                // Add a PDF open button
-                var existing=document.getElementById('pdf-open-btn');
-                if(existing)existing.remove();
-                var btn=document.createElement('a');
-                btn.id='pdf-open-btn';
-                btn.href=pdfUrl; btn.target='_blank';
-                btn.style.cssText='display:inline-block;margin-top:14px;padding:10px 20px;background:var(--g7);color:#fff;border-radius:8px;text-decoration:none;font-weight:600;font-size:13px;';
-                btn.textContent='📄 Open PDF Reference';
-                document.getElementById('ref-img-err').appendChild(btn);
-              } else {
-                im.style.display='none'; ie.style.display='block';
-              }
-            }).catch(function(){im.style.display='none';ie.style.display='block'});
-          } else { tryNext(); }
-        };
-      }
-    }
-    tryNext();
-  }
-  document.getElementById('modal').classList.add('open');
-}
-function closeRef(){
-  var v=document.getElementById('mvid');
-  if(v){v.pause();v.currentTime=0;}
-  document.getElementById('modal').classList.remove('open');
-}
+function closeRef(){var v=document.getElementById('mvid');if(v){v.pause();v.currentTime=0;}document.getElementById('modal').classList.remove('open')}
 function cm(e){if(e.target===document.getElementById('modal'))closeRef();}
 function pg(){
   var ins=document.querySelectorAll('input:not([type=radio]):not([type=password]):not([type=file]),select,textarea');
@@ -867,5 +806,6 @@ document.addEventListener('input',pg);
 document.addEventListener('change',pg);
 bStr();bBat();pg();
 </script>
+
 </body>
 </html>

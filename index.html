@@ -566,7 +566,7 @@ textarea{resize:vertical;min-height:90px;line-height:1.6}
 <div class="toast" id="tst"></div>
 
 <script>
-var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyHYKZtTNT04JOS-gmjizL4j4A6d7GyFQeLg6Vg-O7io1Ckz2lsIA0JYF8uuWit3yk/exec';
+var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyM7ip7VsyMyu8D1uflumaK7QRnsMGaD8poFBgJk1zGa39nuKkikXLAlTkiy1aSWotl/exec';
 var nStr = 0;
 
 // ── FILE REGISTRY: maps fileInputId -> { chipsId, fieldLabel } ──
@@ -955,8 +955,8 @@ function sub(){
 
     fetch(APPS_SCRIPT_URL,{
       method:'POST',
-      mode:'no-cors',
-      headers:{'Content-Type':'application/json'},
+    
+      headers:{'Content-Type':'text/plain'},
       body:JSON.stringify(payload)
     })
     .then(function(){

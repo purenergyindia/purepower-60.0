@@ -823,22 +823,23 @@ function sub(){
   btn.disabled=true;btn.innerHTML='<span>⏳</span> Submitting...';
   var payload=collectData();
   console.log('Submitting payload:',JSON.stringify(payload));
-  var xhr=new XMLHttpRequest();
-  xhr.open('POST',APPS_SCRIPT_URL);
-  xhr.setRequestHeader('Content-Type','application/json');
-  xhr.onload=function(){
-    console.log('Response:',xhr.responseText);
-    btn.disabled=false;btn.innerHTML='<span>✓</span> Submit I&C Form';
-    document.getElementById('fm').style.display='none';
-    document.getElementById('suc').classList.add('show');
-    window.scrollTo({top:0,behavior:'smooth'});
-  };
-  xhr.onerror=function(){
-    console.error('XHR Error');
-    btn.disabled=false;btn.innerHTML='<span>✓</span> Submit I&C Form';
-    toast('❌ Submission failed. Check connection and try again.',true);
-  };
-  xhr.send(JSON.stringify(payload));
+fetch(APPS_SCRIPT_URL, {
+  method: 'POST',
+  mode: 'no-cors',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(payload)
+})
+.then(function() {
+  btn.disabled=false;btn.innerHTML='<span>✓</span> Submit I&C Form';
+  document.getElementById('fm').style.display='none';
+  document.getElementById('suc').classList.add('show');
+  window.scrollTo({top:0,behavior:'smooth'});
+})
+.catch(function(err) {
+  console.error('Fetch Error', err);
+  btn.disabled=false;btn.innerHTML='<span>✓</span> Submit I&C Form';
+  toast('❌ Submission failed. Check connection and try again.',true);
+});
 }
 
 function rst(){document.getElementById('suc').classList.remove('show');document.getElementById('fm').style.display='block';window.scrollTo({top:0,behavior:'smooth'})}

@@ -586,7 +586,7 @@ textarea{resize:vertical;min-height:90px;line-height:1.6}
 
 <script>
 // ── CONFIG — REPLACE WITH YOUR APPS SCRIPT URL ──────────────
-var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx8EKhGStHAdvF5r6uQwBd7aYivTu2XCwi6LPVlyC5u8B123pd9VFe_oC__IwEooH7B/exec';
+var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbya9DTgAF3d9rzm9iy94IsB0IbGtmRdT7Fh4AhT7JFnqdxqpgdwB9qivX5a6pdBEid0/exec';
 
 var nStr = 0;
 
@@ -621,7 +621,7 @@ function hs(){var v=document.getElementById('ss').value;document.getElementById(
 function py(el,gid,val){document.querySelectorAll('#'+gid+' .yb').forEach(function(b){b.classList.remove('yes','no')});el.classList.add(val);pg()}
 function getYN(gid){var el=document.querySelector('#'+gid+' .yb.yes, #'+gid+' .yb.no');if(!el)return '';return el.classList.contains('yes')?'Yes':'No'}
 function gv(id){var el=document.getElementById(id);return el?(el.value||'').trim():''}
-function hasFile(cid){var box=document.getElementById(cid);return(box&&box.children.length>0)?'Yes':'No'}
+function hasFile(cid){var box=document.getElementById(cid);return(box&&box.children.length>0)?'Yes':''}
 
 function ac(inp,cid){
   var box=document.getElementById(cid);box.innerHTML='';
@@ -781,8 +781,7 @@ function collectData(){
   d['PuREPower_Model']='PuREPower 60.0';d['Model_Number']=gv('prod_model_num');
   d['Product_Serial_Number']=gv('prod_serial');d['INV_Code']=gv('prod_inv');d['Installation_Start_Date']=gv('prod_date');
   d['Solar_Connected']=gv('ss')==='yes'?'Yes':(gv('ss')==='no'?'No':'');
-  d['SLD_Document_Attached']=hasFile('c_sld');d['PV_Module_Manufacturer_Name']=gv('pv_mfr');
-  d['Solar_Module_Datasheet_Attached']=hasFile('c_ds');
+  d['PV_Module_Manufacturer_Name']=gv('pv_mfr');
   d['Module_Maximum_Power_Wp']=gv('pv_wp');d['Module_Open_Circuit_Voltage_Voc']=gv('pv_voc');
   d['Module_Short_Circuit_Current_Isc']=gv('pv_isc');d['Module_Maximum_Current_Imax']=gv('pv_imax');
   d['Cable_1C_6sqmm_Copper_Through_Conduit']=getYN('yn_c');
@@ -790,24 +789,15 @@ function collectData(){
   d['DC_Switch_Installed_For_Individual_Strings']=getYN('yn_dc');
   d['DC_Lugs_Positive_Negative_Crimped_Before_Connecting']=getYN('yn_cr');
   d['Strings_Connected_Correct_Polarity']=getYN('yn_pl');
-  d['DC_Distribution_Box_DCDB_Installed']=hasFile('c_db');
-  d['Each_Fuse_Rating_32A_Confirmed']=hasFile('c_fu');
-  d['DC_Surge_Protection_Device_1000V_Installed']=hasFile('c_sp');
-  d['SPD_Grounded_To_Earth_Pit']=hasFile('c_se');
   d['PV_Input_Voltage_V']=gv('pv_inv');d['PV_Input_Current_A']=gv('pv_ina');
   d['PV_Input_Power_W']=gv('pv_inw');d['Today_Solar_Generation_kWh']=gv('pv_gen');
   d['Battery_Charging_Through_Solar']=getYN('yn_bs');
-  d['P1_Phase_Display_Picture_Solar_Attached']=hasFile('c_p1');
-  d['P2_Phase_Display_Picture_Solar_Attached']=hasFile('c_p2');
-  d['P3_Phase_Display_Picture_Solar_Attached']=hasFile('c_p3');
-  d['Load_Test_Conducted_In_OffGrid_Solar_Mode']=getYN('yn_lt');
-  d['Battery_SOC_99_To_100_Before_Solar_Test']=hasFile('c_sc');
-  d['Solar_Generation_Atleast_50_Percent']=hasFile('c_s5');
+  
   d['All_Nominal_Loads_Running_In_Solar_Mode']=getYN('yn_nl');
   d['Output_Power_kW_RPhase_P1_Display1']=gv('sol_kw_r1');d['Output_Power_kW_RPhase_P1_Display2']=gv('sol_kw_r2');
   d['Output_Power_kW_YPhase_P2_Display1']=gv('sol_kw_y1');d['Output_Power_kW_YPhase_P2_Display2']=gv('sol_kw_y2');
   d['Output_Power_kW_BPhase_P3_Display1']=gv('sol_kw_b1');d['Output_Power_kW_BPhase_P3_Display2']=gv('sol_kw_b2');
-  d['Nominal_Load_Video_Picture_Attached']=hasFile('c_nv');
+  
   d['All_Full_Loads_Running_In_Solar_Mode']=getYN('yn_fl');
   d['Output_Power_kVA_RPhase_P1_Display1']=gv('sol_kva_r1');d['Output_Power_kVA_RPhase_P1_Display2']=gv('sol_kva_r2');
   d['Output_Power_kVA_YPhase_P2_Display1']=gv('sol_kva_y1');d['Output_Power_kVA_YPhase_P2_Display2']=gv('sol_kva_y2');
@@ -822,17 +812,12 @@ function collectData(){
     d[pfx+'Total_Plant_Capacity_W']=gv('s'+n+'_plant');d[pfx+'MC4_Connector_32A_Used']=getYN('yn_s'+n+'_mc4');
     d[pfx+'PV_Strings_Parallel_Per_MPPT']=gv('s'+n+'_mppt');
   }
-  d['WiFi_Router_Within_3m_Solar_Monitoring']=hasFile('c_wf');
-  d['Dongle_P1_Photo1']=hasFile('c_d1a');d['Dongle_P1_Photo2']=hasFile('c_d1b');
-  d['Dongle_P2_Photo1']=hasFile('c_d2a');d['Dongle_P2_Photo2']=hasFile('c_d2b');
-  d['Dongle_P3_Photo1']=hasFile('c_d3a');d['Dongle_P3_Photo2']=hasFile('c_d3b');
-  d['App_P1_Screenshot1']=hasFile('c_a1a');d['App_P1_Screenshot2']=hasFile('c_a1b');
-  d['App_P2_Screenshot1']=hasFile('c_a2a');d['App_P2_Screenshot2']=hasFile('c_a2b');
-  d['App_P3_Screenshot1']=hasFile('c_a3a');d['App_P3_Screenshot2']=hasFile('c_a3b');
+ 
+  
   d['Solar_Of_Things_Login_Email']=gv('sot_email');
   d['Grid_Export_Enabled_Net_Meter']=getYN('yn_ex');
   d['Manual_Read_Before_Installation']=getYN('yn_e0');d['Cable_50sqmm_4Core_Copper_Conduit']=getYN('yn_e1');
-  d['Correct_Lug_Type_Confirmed']=getYN('yn_e2');d['ACDB_Installed']=hasFile('c_ac');
+  d['Correct_Lug_Type_Confirmed']=getYN('yn_e2');
   d['AC_MCB_4Pole_125A_Confirmed']=getYN('yn_e4');d['RYBNE_Correct_Phase_No_Loose']=getYN('yn_e5');
   d['Input_Output_Neutral_Not_Single_Point']=getYN('yn_e6');d['AC_Input_Breakers_Switched_ON']=getYN('yn_e7');
   d['Phase_Sequence_YB_Interchanged_If_Needed']=getYN('yn_e8');
@@ -844,12 +829,9 @@ function collectData(){
   d['Output_Power_Battery_Mode_W']=gv('bat_opw');
   d['Output_Voltage_PP_BatteryMode_V']=gv('bat_vpp');d['Output_Voltage_PN_BatteryMode_V']=gv('bat_vpn');
   d['AC_Output_Frequency_BatteryMode_Hz']=gv('bat_freq');d['Load_Percentage_BatteryMode']=gv('bat_load_pct');
-  d['AC_Output_Display_Photo']=hasFile('c_ad');d['Battery_SOC_99_To_100_Before_Battery_Test']=hasFile('c_bsc');
-  d['Battery_Load_Test_Video']=hasFile('c_bt');
-  d['AC_Earthing_Resistance_Ohm']=gv('ac_earth_ohm');d['NeutralEarth_Voltage_Not_Exceeding_5V']=hasFile('c_ne');
+  d['AC_Earthing_Resistance_Ohm']=gv('ac_earth_ohm');
   d['ELCB_Installed_Leakage_Current_Confirmed']=getYN('yn_elcb');
   d['Number_Of_Diesel_Generators']=gv('dg_count');
-  d['DG_Rating_Photo']=hasFile('c_dgr');d['DG_NeutralEarth_Voltage_Photo']=hasFile('c_dgne');
   d['DG_Earthing_Resistance_Ohm']=gv('dg_earth_ohm');
   d['DG_Output_Voltage_PP_R_V']=gv('dg_vpp_r');d['DG_Output_Voltage_PP_Y_V']=gv('dg_vpp_y');d['DG_Output_Voltage_PP_B_V']=gv('dg_vpp_b');
   d['DG_Output_Voltage_PN_V']=gv('dg_vpn');
@@ -858,15 +840,14 @@ function collectData(){
   d['DG_Output_Power_Per_Phase_W']=gv('dg_opw');d['DG_Load_Percentage']=gv('dg_load_pct');d['DG_AC_Output_Frequency_Hz']=gv('dg_freq');
   d['Battery_Charging_Through_DG']=getYN('yn_bdg');d['Grid_Input_Switched_ON_After_DG']=getYN('yn_go');
   d['PuREPower_Auto_Switched_Back_To_Grid']=getYN('yn_as');d['All_Loads_Running_Smoothly_Grid_Mode']=getYN('yn_lg');
-  d['WiFi_Router_Within_3m_Battery']=hasFile('c_wf2');d['PURE_BMS_Login_Email']=gv('bms_email');
+  d['PURE_BMS_Login_Email']=gv('bms_email');
   for(var b=1;b<=14;b++){
     var bp='Battery'+b+'_';
     d[bp+'Serial_Number']=gv('bat'+b+'_serial');d[bp+'Mode_Of_Charging']=gv('bat'+b+'_mode');
     d[bp+'Voltage_V']=gv('bat'+b+'_v');d[bp+'Charging_Current_A']=gv('bat'+b+'_ci');
     d[bp+'Discharge_Current_A']=gv('bat'+b+'_di');d[bp+'SOC_Percentage']=gv('bat'+b+'_soc');
-  }
-  d['Installation_Photo']=hasFile('c_ip');d['Label_Photo']=hasFile('c_lp');
-  d['Customer_Signature_Attached']=hasFile('c_csig');
+ 
+ 
   d['Installation_Done_By_Firm']=gv('inst_firm');d['Electrician_Name']=gv('inst_name');
   d['Electrician_Mobile']=gv('inst_mobile');d['Electrician_Email']=gv('inst_email');
   d['Date_Of_Commissioning']=gv('inst_date');

@@ -707,52 +707,60 @@ function compressImage(file){
 // 1. Ask Apps Script for a resumable upload URL
 // 2. PUT the file directly to Google Drive from the browser
 // 3. Return the public Drive view URL
-function uploadToDrive(file, fieldLabel, customerName, dateStr, onProgress){
-  var ext=file.name.split('.').pop()||'bin';
-  var fileName=customerName.replace(/[^a-zA-Z0-9]/g,'_')+'_'+fieldLabel+'_'+dateStr+'.'+ext;
+function uploadToDrive(file, fieldLabel, customerName, dateStr, onProgress) {
+  var CHUNK_SIZE = 3 * 1024 * 1024;
+  var ext = file.name.split('.').pop() || 'bin';
+  var fileName = customerName.replace(/[^a-zA-Z0-9]/g,'_') + '_' + fieldLabel + '_' + dateStr + '.' + ext;
+  var totalChunks = Math.ceil(file.size / CHUNK_SIZE);
 
-  // Step 1: get upload URL from Apps Script (GET request, tiny payload)
-  var params=new URLSearchParams({
-    action:'getUploadUrl',
-    fileName:fileName,
-    mimeType:file.type||'application/octet-stream',
-    customerName:customerName,
-    dateStr:dateStr
-  });
+  function readChunk(idx) {
+    return new Promise(function(resolve, reject) {
+      var start = idx * CHUNK_SIZE;
+      var end = Math.min(start + CHUNK_SIZE, file.size);
+      var blob = file.slice(start, end);
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var bytes = new Uint8Array(e.target.result);
+        var binary = '';
+        bytes.forEach(function(b) { binary += String.fromCharCode(b); });
+        resolve(btoa(binary));
+      };
+      reader.onerror = reject;
+      reader.readAsArrayBuffer(blob);
+    });
+  }
 
-  return fetch(APPS_SCRIPT_URL+'?'+params.toString())
-    .then(function(r){return r.json();})
-    .then(function(data){
-      if(data.status!=='ok'||!data.uploadUrl){
-        throw new Error('Upload URL error: '+(data.message||'unknown'));
-      }
-      // Step 2: upload file directly to Drive (no size limit)
-      return new Promise(function(resolve,reject){
-        var xhr=new XMLHttpRequest();
-        xhr.open('PUT',data.uploadUrl);
-        xhr.setRequestHeader('Content-Type',file.type||'application/octet-stream');
-        xhr.upload.onprogress=function(e){
-          if(e.lengthComputable&&onProgress) onProgress(e.loaded/e.total);
-        };
-        xhr.onload=function(){
-          if(xhr.status>=200&&xhr.status<300){
-            try{
-              var resp=JSON.parse(xhr.responseText);
-              var fileId=resp.id;
-              var viewUrl='https://drive.google.com/file/d/'+fileId+'/view';
-              resolve({fieldLabel:fieldLabel,fileUrl:viewUrl,folderId:data.folderId,folderUrl:data.folderUrl});
-            }catch(e){
-              // Drive returned something unexpected but upload likely worked
-              resolve({fieldLabel:fieldLabel,fileUrl:data.folderUrl,folderId:data.folderId,folderUrl:data.folderUrl});
-            }
-          } else {
-            reject(new Error('Drive upload failed: HTTP '+xhr.status));
-          }
-        };
-        xhr.onerror=function(){reject(new Error('Network error during Drive upload'));};
-        xhr.send(file);
+  function sendChunk(idx) {
+    return readChunk(idx).then(function(base64Chunk) {
+      if (onProgress) onProgress(idx / totalChunks);
+      return fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({
+          action:       'uploadChunk',
+          chunk:        base64Chunk,
+          chunkIndex:   idx,
+          totalChunks:  totalChunks,
+          fileName:     fileName,
+          mimeType:     file.type || 'application/octet-stream',
+          fieldLabel:   fieldLabel,
+          customerName: customerName,
+          dateStr:      dateStr
+        })
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.status === 'error') throw new Error(data.message);
+        if (data.status === 'ok') {
+          if (onProgress) onProgress(1);
+          return { fieldLabel: fieldLabel, fileUrl: data.fileUrl, folderUrl: data.folderUrl };
+        }
+        return sendChunk(idx + 1);
       });
     });
+  }
+
+  return sendChunk(0);
 }
 
 // ── COLLECT ALL FILES ─────────────────────────────────────────

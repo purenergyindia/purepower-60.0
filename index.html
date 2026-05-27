@@ -446,7 +446,7 @@ textarea{resize:vertical;min-height:90px;line-height:1.6}
           <input type="number" id="bat_opw" placeholder="W">
         </div>
         <div class="g3">
-          <div class="field"><label class="fl">Output Voltage P-P Battery Mode (V)</label><div class="ar"><input type="number" id="bat_vpp" placeholder="V" style="flex:1"><div class="rb" style="margin-left:12px"><a class="rt" onclick="r('Output Voltage Reference','ref-ac-display.jpg','Capture the output voltage reading from the PuREPower display.')"><span class="ri">🖼️</span><small>Reference</small></a></div></div> placeholder="V"></div>
+          <div class="field"><label class="fl">Output Voltage P-P Battery Mode (V)</label><div class="ar"><input type="number" id="bat_vpp" placeholder="V" style="flex:1"><div class="rb" style="margin-left:12px"><a class="rt" onclick="r('Output Voltage Reference','ref-ac-display.jpg','Capture the output voltage reading from the PuREPower display.')"><span class="ri">🖼️</span><small>Reference</small></a></div></div></div>
           <div class="field"><label class="fl">Output Voltage P-N Battery Mode (V)</label><input type="number" id="bat_vpn" placeholder="V"></div>
           <div class="field"><label class="fl">AC output frequency Battery Mode (Hz)</label><input type="number" id="bat_freq" placeholder="Hz"></div>
         </div>
@@ -841,20 +841,20 @@ function collectData(){
   d['Battery_Charging_Through_DG']=getYN('yn_bdg');d['Grid_Input_Switched_ON_After_DG']=getYN('yn_go');
   d['PuREPower_Auto_Switched_Back_To_Grid']=getYN('yn_as');d['All_Loads_Running_Smoothly_Grid_Mode']=getYN('yn_lg');
   d['PURE_BMS_Login_Email']=gv('bms_email');
-  for(var b=1;b<=14;b++){
+ 
+for(var b=1;b<=14;b++){
     var bp='Battery'+b+'_';
     d[bp+'Serial_Number']=gv('bat'+b+'_serial');d[bp+'Mode_Of_Charging']=gv('bat'+b+'_mode');
     d[bp+'Voltage_V']=gv('bat'+b+'_v');d[bp+'Charging_Current_A']=gv('bat'+b+'_ci');
     d[bp+'Discharge_Current_A']=gv('bat'+b+'_di');d[bp+'SOC_Percentage']=gv('bat'+b+'_soc');
- 
- 
+  }
+
   d['Installation_Done_By_Firm']=gv('inst_firm');d['Electrician_Name']=gv('inst_name');
   d['Electrician_Mobile']=gv('inst_mobile');d['Electrician_Email']=gv('inst_email');
   d['Date_Of_Commissioning']=gv('inst_date');
   d['Net_Meter_Installed']=getYN('yn_nm');d['Remarks']=gv('inst_remarks');
   return d;
 }
-
 // ── CONFETTI ──────────────────────────────────────────────────
 function launchConfetti(){
   var wrap=document.getElementById('confettiWrap');

@@ -43,6 +43,8 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 .chip .cs{font-size:10px;color:var(--s5);font-weight:600;background:var(--s1);padding:2px 4px;border-radius:4px;white-space:nowrap}
 .s-row{display:none;padding:16px;background:var(--s0);border-radius:var(--rmd);margin-bottom:12px;border:1px solid var(--s2)}
 .s-row.active{display:block;animation:fIn 0.3s ease}
+.b-card{background:var(--s0);border:1px solid var(--s2);border-radius:var(--rmd);padding:20px;margin-bottom:16px;position:relative}
+.b-title{font-size:14px;font-weight:700;color:var(--g7);margin-bottom:16px;display:flex;align-items:center;gap:8px}
 .s-num{font-size:13px;font-weight:700;color:var(--g7);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.5px;display:flex;align-items:center;gap:6px}
 .s-num::after{content:'';flex:1;height:1px;background:var(--s2)}
 .actions{padding:24px;background:var(--s0);border-top:1px solid var(--s2);display:flex;justify-content:flex-end;gap:12px}
@@ -80,14 +82,12 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
 <body>
-
 <div class="container">
   <form id="fm">
     <div class="header">
       <h1>PuREPower Installation & Commissioning Form</h1>
       <p>Version 6.0 (Chunked Cloud Stream Layout Protocol)</p>
     </div>
-
     <div class="banner">
       <div class="banner-icon">💡</div>
       <div class="banner-text">
@@ -95,7 +95,6 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
         <p>Large video files, high-resolution imagery, and document attachments are automatically segmented into secure 350KB byte arrays. Do not close or navigate away from the tab until confirmation appears.</p>
       </div>
     </div>
-
     <div class="sec">
       <div class="sec-title">👤 Customer & Personnel Parameters</div>
       <div class="g3">
@@ -119,36 +118,19 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
       </div>
       <div class="field"><label class="fl">Site Address <span>*</span></label><textarea id="Customer_Address" rows="2" required></textarea></div>
     </div>
-
     <div class="sec">
       <div class="sec-title">⚙️ Equipment Configuration</div>
       <div class="g4">
-        <div class="field">
-          <label class="fl">PuREPower Model <span>*</span></label>
-          <select id="PuREPower_Model" required>
-            <option value="">— Select Model —</option>
-            <option>PuREPower 15kVA</option>
-            <option>PuREPower 30kVA</option>
-            <option>PuREPower 50kVA</option>
-          </select>
-        </div>
+        <div class="field"><label class="fl">PuREPower Model <span>*</span></label><select id="PuREPower_Model" required><option value="">— Select Model —</option><option>PuREPower 15kVA</option><option>PuREPower 30kVA</option><option>PuREPower 50kVA</option></select></div>
         <div class="field"><label class="fl">Model Number <span>*</span></label><input type="text" id="Model_Number" required></div>
         <div class="field"><label class="fl">Product Serial No <span>*</span></label><input type="text" id="Product_Serial_Number" required></div>
         <div class="field"><label class="fl">INV Code <span>*</span></label><input type="text" id="INV_Code" required></div>
       </div>
       <div class="g2">
         <div class="field"><label class="fl">Installation Start Date <span>*</span></label><input type="date" id="Installation_Start_Date" required></div>
-        <div class="field">
-          <label class="fl">Solar Connected? <span>*</span></label>
-          <select id="Solar_Connected" required>
-            <option value="">— Select Option —</option>
-            <option>Yes</option>
-            <option>No</option>
-          </select>
-        </div>
+        <div class="field"><label class="fl">Solar Connected? <span>*</span></label><select id="Solar_Connected" required><option value="">— Select Option —</option><option>Yes</option><option>No</option></select></div>
       </div>
     </div>
-
     <div class="sec">
       <div class="sec-title">📋 Engineering & Site Documentation</div>
       <div class="g2">
@@ -156,32 +138,22 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
           <label class="fl">Upload Single Line Diagram (SLD) <span>*</span></label>
           <div class="ar">
             <div class="uw">
-              <label class="ul">
-                <input type="file" id="SLD_Document" accept="image/*,application/pdf" onchange="ac(this,'sld_chips')">
-                <span class="ui">📎</span>
-                <div class="ut"><strong>Choose SLD File</strong><span>Images or PDF</span></div>
-              </label>
+              <label class="ul"><input type="file" id="SLD_Document" accept="image/*,application/pdf" onchange="ac(this,'sld_chips')"><span class="ui">📎</span><div class="ut"><strong>Choose SLD File</strong><span>Images or PDF</span></div></label>
               <div class="chips" id="sld_chips"></div>
             </div>
           </div>
         </div>
-
         <div class="field">
           <label class="fl">Upload Solar Module Datasheet <span>*</span></label>
           <div class="ar">
             <div class="uw">
-              <label class="ul">
-                <input type="file" id="Module_Datasheet" accept="image/*,application/pdf" onchange="ac(this,'ds_chips')">
-                <span class="ui">📎</span>
-                <div class="ut"><strong>Choose Datasheet File</strong><span>Images or PDF</span></div>
-              </label>
+              <label class="ul"><input type="file" id="Module_Datasheet" accept="image/*,application/pdf" onchange="ac(this,'ds_chips')"><span class="ui">📎</span><div class="ut"><strong>Choose Datasheet File</strong><span>Images or PDF</span></div></label>
               <div class="chips" id="ds_chips"></div>
             </div>
           </div>
         </div>
       </div>
     </div>
-
     <div class="sec">
       <div class="sec-title">🔌 Photovoltaic Array Matrix</div>
       <div class="g3">
@@ -192,105 +164,53 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
       <div class="g3">
         <div class="field"><label class="fl">Module Isc (A) <span>*</span></label><input type="number" step="0.01" id="Module_Short_Circuit_Current_Isc" required></div>
         <div class="field"><label class="fl">Module Imax (A) <span>*</span></label><input type="number" step="0.01" id="Module_Maximum_Current_Imax" required></div>
-        <div class="field">
-          <label class="fl">No. of Strings Connected <span>*</span></label>
-          <select id="Number_Of_Strings_Connected" required>
-            <option value="0">0 Strings</option>
-            <option value="1">1 String</option>
-            <option value="2">2 Strings</option>
-            <option value="3">3 Strings</option>
-            <option value="4">4 Strings</option>
-          </select>
-        </div>
+        <div class="field"><label class="fl">No. of Strings Connected <span>*</span></label><select id="Number_Of_Strings_Connected" required><option value="0">0 Strings</option><option value="1">1 String</option><option value="2">2 Strings</option><option value="3">3 Strings</option><option value="4">4 Strings</option><option value="5">5 Strings</option><option value="6">6 Strings</option><option value="7">7 Strings</option><option value="8">8 Strings</option><option value="9">9 Strings</option><option value="10">10 Strings</option><option value="11">11 Strings</option><option value="12">12 Strings</option></select></div>
       </div>
-
-      <div id="strings_container" style="margin-top:16px;">
-        <div id="string_row_1" class="s-row">
-          <div class="s-num">String #1 Parameters</div>
-          <div class="g3">
-            <div class="field"><label class="fl">Modules in Series</label><input type="number" id="String1_Modules_In_Series"></div>
-            <div class="field"><label class="fl">String Voltage VDC</label><input type="number" id="String1_String_Voltage_VDC"></div>
-            <div class="field"><label class="fl">Total DC Watts</label><input type="number" id="String1_Total_DC_Watts_Per_String"></div>
-          </div>
-        </div>
-        <div id="string_row_2" class="s-row">
-          <div class="s-num">String #2 Parameters</div>
-          <div class="g3">
-            <div class="field"><label class="fl">Modules in Series</label><input type="number" id="String2_Modules_In_Series"></div>
-            <div class="field"><label class="fl">String Voltage VDC</label><input type="number" id="String2_String_Voltage_VDC"></div>
-            <div class="field"><label class="fl">Total DC Watts</label><input type="number" id="String2_Total_DC_Watts_Per_String"></div>
-          </div>
-        </div>
-        <div id="string_row_3" class="s-row">
-          <div class="s-num">String #3 Parameters</div>
-          <div class="g3">
-            <div class="field"><label class="fl">Modules in Series</label><input type="number" id="String3_Modules_In_Series"></div>
-            <div class="field"><label class="fl">String Voltage VDC</label><input type="number" id="String3_String_Voltage_VDC"></div>
-            <div class="field"><label class="fl">Total DC Watts</label><input type="number" id="String3_Total_DC_Watts_Per_String"></div>
-          </div>
-        </div>
-        <div id="string_row_4" class="s-row">
-          <div class="s-num">String #4 Parameters</div>
-          <div class="g3">
-            <div class="field"><label class="fl">Modules in Series</label><input type="number" id="String4_Modules_In_Series"></div>
-            <div class="field"><label class="fl">String Voltage VDC</label><input type="number" id="String4_String_Voltage_VDC"></div>
-            <div class="field"><label class="fl">Total DC Watts</label><input type="number" id="String4_Total_DC_Watts_Per_String"></div>
-          </div>
-        </div>
-      </div>
+      <div id="strings_container" style="margin-top:16px;"></div>
     </div>
-
     <div class="sec">
-      <div class="sec-title">📸 Field Installation Proofs (Media Files)</div>
+      <div class="sec-title">🔋 Modular Lithium Battery Banks (Dynamic)</div>
+      <div style="margin-bottom: 16px;">
+        <div class="field">
+          <label class="fl">Number of Active Battery Packs Connected</label>
+          <select id="active_battery_count" style="max-width: 200px;"><option value="0">0 Packs</option><option value="1">1 Pack</option><option value="2">2 Packs</option><option value="3">3 Packs</option><option value="4">4 Packs</option><option value="6">6 Packs</option><option value="8">8 Packs</option><option value="10">10 Packs</option><option value="12">12 Packs</option><option value="14">14 Packs</option></select>
+        </div>
+      </div>
+      <div id="battery_cards_root"></div>
+    </div>
+    <div class="sec">
+      <div class="sec-title">📸 Field Installation Proofs</div>
       <div class="g2">
         <div class="field">
           <label class="fl">DCDB Panel Picture <span>*</span></label>
           <div class="ar">
             <div class="uw">
-              <label class="ul">
-                <input type="file" id="DCDB_Picture" accept="image/*" onchange="ac(this,'dcdb_chips')">
-                <span class="ui">📷</span>
-                <div class="ut"><strong>Attach Photo</strong><span>Image format</span></div>
-              </label>
+              <label class="ul"><input type="file" id="DCDB_Picture" accept="image/*" onchange="ac(this,'dcdb_chips')"><span class="ui">📷</span><div class="ut"><strong>Attach Photo</strong><span>Image format</span></div></label>
               <div class="chips" id="dcdb_chips"></div>
             </div>
           </div>
         </div>
-
         <div class="field">
           <label class="fl">Nominal System Load Running Video <span>*</span></label>
           <div class="ar">
             <div class="uw">
-              <label class="ul">
-                <input type="file" id="Nominal_Load_Video" accept="video/*" onchange="ac(this,'video_chips')">
-                <span class="ui">🎥</span>
-                <div class="ut"><strong>Attach System Video Clip</strong><span>Supports large file sizes</span></div>
-              </label>
+              <label class="ul"><input type="file" id="Nominal_Load_Video" accept="video/*" onchange="ac(this,'video_chips')"><span class="ui">🎥</span><div class="ut"><strong>Attach System Video Clip</strong><span>Supports large file sizes</span></div></label>
               <div class="chips" id="video_chips"></div>
             </div>
           </div>
         </div>
       </div>
     </div>
-
-    <div class="actions">
-      <button type="submit" id="submitBtn" class="btn btn-p">
-        <span>✓</span> Submit I&C Form Data
-      </button>
-    </div>
+    <div class="actions"><button type="submit" id="submitBtn" class="btn btn-p"><span>✓</span> Submit I&C Form Data</button></div>
   </form>
 </div>
-
 <div id="uov" class="uov">
   <div class="uob">
     <div class="utxt" id="utxt">Uploading System Attachments...</div>
-    <div class="pbr">
-      <div class="pbf" id="pbf"></div>
-    </div>
+    <div class="pbr"><div class="pbf" id="pbf"></div></div>
     <div class="usub" id="usub">Initializing multi-part memory chunk stream...</div>
   </div>
 </div>
-
 <div id="suc" class="suc">
   <div class="s-ico">🎉</div>
   <h2>Submission Synchronized!</h2>
@@ -303,23 +223,88 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
     <div class="s-line"><span class="s-lbl">Server Timestamp:</span><span class="s-val" id="sucTime"></span></div>
   </div>
 </div>
-
 <div id="tst" class="toast">Toast Notification Display Message</div>
 
 <script>
-// Paste your newly generated Web App URL from Step 1 here:
-var AS_URL = "https://script.google.com/macros/s/AKfycbyurYZno_d7ReMUUI5867WY8z4eBjVJKWkOsVzKbfUKHheFdBBkEjFOdxoXGFbw-IGm/exec";
+// ==========================================
+// CONFIGURATION: Set your Web App execution URL here
+// ==========================================
+var AS_URL = "https://script.google.com/macros/s/AKfycby3N7R1htuacV3yQDcbVgqijT94I3Qtmb4d859NzFCGVTU5s6AWpkdBvRrM4KNqmJcg/exec";
 
+// DECLARE AS LET / VAR TO ALLOW FILTER MODIFICATIONS
 var files = [];
-var _folderUrl = ""; 
+var _folderUrl = "";
+
+window.addEventListener("DOMContentLoaded", function() {
+  var sc = document.getElementById("strings_container");
+  if(sc){
+    var sh = "";
+    for(var i=1; i<=12; i++){
+      sh += '<div id="string_row_'+i+'" class="s-row">';
+      sh += '<div class="s-num">String #'+i+' Parameters</div>';
+      sh += '<div class="g3">';
+      sh += '<div class="field"><label class="fl">Modules in Series</label><input type="number" id="String'+i+'_Modules_In_Series"></div>';
+      sh += '<div class="field"><label class="fl">String Voltage VDC</label><input type="number" id="String'+i+'_String_Voltage_VDC"></div>';
+      sh += '<div class="field"><label class="fl">Total DC Watts</label><input type="number" id="String'+i+'_Total_DC_Watts_Per_String"></div>';
+      sh += '</div></div>';
+    }
+    sc.innerHTML = sh;
+  }
+
+  var c = document.getElementById("battery_cards_root");
+  if(c){
+    var bh = "";
+    for(var b=1; b<=14; b++){
+      var fid = "Battery"+b+"_BMS_Screenshot";
+      var cid = "bat"+b+"_chips";
+      bh += '<div id="bat_pack_'+b+'" class="b-card" style="display:none;">';
+      bh += '<div class="b-title">⚡ Lithium Battery Pack #'+b+' Specifications</div>';
+      bh += '<div class="g2"><div class="field"><label class="fl">Battery Serial Number</label><input type="text" id="bat'+b+'_sn"></div>';
+      bh += '<div class="field"><label class="fl">Mode of Charging</label><select id="bat'+b+'_mode"><option value="">— Select mode —</option><option>Input AC Grid</option><option>Solar</option><option>DG</option></select></div></div>';
+      bh += '<div class="field"><label class="fl">Voltage (V)</label><input type="number" id="bat'+b+'_v" placeholder="V"></div>';
+      bh += '<div class="g3"><div class="field"><label class="fl">Charging Current (A)</label><input type="number" id="bat'+b+'_ci" placeholder="A"></div>';
+      bh += '<div class="field"><label class="fl">Discharge Current (A)</label><input type="number" id="bat'+b+'_di" placeholder="A"></div>';
+      bh += '<div class="field"><label class="fl">SOC %</label><input type="number" id="bat'+b+'_soc" placeholder="%"></div></div>';
+      bh += '<div class="field"><label class="fl">PURE BMS App Screenshot (Pack-'+b+')</label>';
+      bh += '<div class="ar"><div class="uw"><label class="ul"><input type="file" id="'+fid+'" accept="image/*" onchange="ac(this,\''+cid+'\')"><span class="ui">📎</span><div class="ut"><strong>Attach Battery '+b+' Screenshot</strong><span>JPG or PNG</span></div></label><div class="chips" id="' + cid + '"></div></div></div></div></div>';
+    }
+    c.innerHTML = bh;
+  }
+
+  var sSel = document.getElementById("Number_Of_Strings_Connected");
+  if(sSel){
+    sSel.addEventListener("change", function() {
+      var count = parseInt(this.value, 10) || 0;
+      for(var i=1; i<=12; i++){
+        var row = document.getElementById("string_row_" + i);
+        if(row) {
+          if(i <= count) row.classList.add("active");
+          else row.classList.remove("active");
+        }
+      }
+    });
+  }
+
+  var batSel = document.getElementById("active_battery_count");
+  if(batSel){
+    batSel.addEventListener("change", function() {
+      var count = parseInt(this.value, 10) || 0;
+      for(var i=1; i<=14; i++){
+        var el = document.getElementById("bat_pack_" + i);
+        if(el) {
+          if(i <= count) { el.style.display = "block"; el.classList.add("active"); }
+          else { el.style.display = "none"; el.classList.remove("active"); }
+        }
+      }
+    });
+  }
+});
 
 function ac(input, chipId) {
   var container = document.getElementById(chipId);
   var fieldLabel = input.id;
-  
   if (!input.files || input.files.length === 0) return;
   
-  // Prevent duplicate asset assignments across the same upload input node
   files = files.filter(function(item) {
     return item.label !== fieldLabel;
   });
@@ -328,14 +313,9 @@ function ac(input, chipId) {
   for (var i = 0; i < input.files.length; i++) {
     var f = input.files[i];
     files.push({ label: fieldLabel, file: f });
-    
     var chip = document.createElement("div");
     chip.className = "chip";
-    
-    var sizeStr = f.size > 1024 * 1024 
-      ? (f.size / (1024 * 1024)).toFixed(1) + " MB" 
-      : (f.size / 1024).toFixed(0) + " KB";
-      
+    var sizeStr = f.size > 1024 * 1024 ? (f.size / (1024 * 1024)).toFixed(1) + " MB" : (f.size / 1024).toFixed(0) + " KB";
     chip.innerHTML = '<span class="cn">' + f.name + '</span><span class="cs">' + sizeStr + '</span>';
     container.appendChild(chip);
   }
@@ -359,35 +339,46 @@ function toast(msg, isError) {
 
 async function sub(e) {
   if (e) e.preventDefault();
-  
   var btn = document.getElementById("submitBtn");
   btn.disabled = true;
   btn.innerHTML = '<div class="spinner"></div> Processing Data Streams...';
   
   var textData = {};
   var filledCount = 0;
-  
-  // Extract standard form inputs
   var inputs = document.querySelectorAll("#fm input[type='text'], #fm input[type='number'], #fm input[type='date'], #fm select, #fm textarea");
   inputs.forEach(function(el) {
-    if (el.id && !el.id.startsWith("bat")) {
+    if (el.id && !el.id.startsWith("bat") && el.id !== "active_battery_count" && el.id !== "Number_Of_Strings_Connected") {
       var val = el.value.trim();
       textData[el.id] = val;
       if (val !== "") filledCount++;
     }
   });
   
-  // Dynamically aggregate active battery modular cards
+  var strSelect = document.getElementById("Number_Of_Strings_Connected");
+  if (strSelect) textData["Number_Of_Strings_Connected"] = strSelect.value;
+  
+  var strCount = parseInt(strSelect.value, 10) || 0;
+  for(var s=1; s<=12; s++){
+    if(s <= strCount){
+      var mis = document.getElementById("String"+s+"_Modules_In_Series");
+      var sv  = document.getElementById("String"+s+"_String_Voltage_VDC");
+      var tdw = document.getElementById("String"+s+"_Total_DC_Watts_Per_String");
+      textData["String"+s+"_Modules_In_Series"] = mis ? mis.value.trim() : "";
+      textData["String"+s+"_String_Voltage_VDC"] = sv ? sv.value.trim() : "";
+      textData["String"+s+"_Total_DC_Watts_Per_String"] = tdw ? tdw.value.trim() : "";
+      filledCount += 3;
+    }
+  }
+
+  var activeBatCount = parseInt(document.getElementById("active_battery_count").value, 10) || 0;
   for (var b = 1; b <= 14; b++) {
-    var wrapper = document.getElementById("bat_pack_" + b);
-    if (wrapper && wrapper.classList.contains("active")) {
+    if (b <= activeBatCount) {
       var s   = document.getElementById("bat" + b + "_sn");
       var m   = document.getElementById("bat" + b + "_mode");
       var v   = document.getElementById("bat" + b + "_v");
       var ci  = document.getElementById("bat" + b + "_ci");
       var di  = document.getElementById("bat" + b + "_di");
       var soc = document.getElementById("bat" + b + "_soc");
-      
       if (s && s.value.trim()) {
         textData["Battery" + b + "_Serial_Number"] = s.value.trim();
         textData["Battery" + b + "_Mode_Of_Charging"] = m ? m.value : "";
@@ -412,24 +403,16 @@ async function sub(e) {
   _folderUrl = "";
   
   try {
-    // Sequentially process each image/video through chunking engine
     for (var i = 0; i < totalFiles; i++) {
       var item = files[i];
       var fileObj = item.file;
       var fieldLabel = item.label;
-      
-      setP(
-        10 + ((i / totalFiles) * 75), 
-        "Uploading form asset (" + (i + 1) + " of " + totalFiles + ")", 
-        fileObj.name
-      );
-      
+      setP(10 + ((i / totalFiles) * 75), "Uploading form asset (" + (i + 1) + " of " + totalFiles + ")", fileObj.name);
       var fileUrl = await uploadFileInChunks(fileObj, fieldLabel, customerName, dateStr);
       uploadedLinks[fieldLabel] = fileUrl;
     }
     
     setP(88, "Writing transaction records to Google Sheets...", "Finalizing rows...");
-    
     var finalPayload = {
       action: "saveToSheet",
       customerName: customerName,
@@ -444,7 +427,6 @@ async function sub(e) {
       body: JSON.stringify(finalPayload)
     });
     var d = await res.json();
-    
     if (d.status === "success") {
       document.getElementById("uov").classList.remove("open");
       document.getElementById("fm").style.display = "none";
@@ -458,7 +440,6 @@ async function sub(e) {
     } else {
       throw new Error(d.message || "Database rejected text append configuration");
     }
-    
   } catch (err) {
     console.error(err);
     document.getElementById("uov").classList.remove("open");
@@ -470,24 +451,17 @@ async function sub(e) {
 
 function uploadFileInChunks(file, fieldLabel, customerName, dateStr) {
   return new Promise(function(resolve, reject) {
-    var CHUNK_SIZE = 1024 * 350; // 350KB safe payload block slices
+    var CHUNK_SIZE = 1024 * 350; 
     var totalChunks = Math.ceil(file.size / CHUNK_SIZE);
     var chunkIndex = 0;
-
     function sendNextChunk() {
       var start = chunkIndex * CHUNK_SIZE;
       var end = Math.min(file.size, start + CHUNK_SIZE);
       var blobSlice = file.slice(start, end);
       var reader = new FileReader();
-
       reader.onloadend = function() {
-        if (reader.error) {
-          reject(new Error("Local FileReader failed: " + reader.error.message));
-          return;
-        }
-
+        if (reader.error) { reject(new Error("Local FileReader failed: " + reader.error.message)); return; }
         var base64Data = reader.result.split(",")[1];
-
         var payload = {
           action: "uploadChunk",
           chunkIndex: chunkIndex,
@@ -499,52 +473,27 @@ function uploadFileInChunks(file, fieldLabel, customerName, dateStr) {
           mimeType: file.type || "application/octet-stream",
           chunk: base64Data
         };
-
         var overallPct = Math.round(((chunkIndex + 1) / totalChunks) * 100);
         document.getElementById("usub").textContent = "Sending segment slices: " + overallPct + "% parsed";
-
         fetch(AS_URL, {
           method: "POST",
           body: JSON.stringify(payload)
         })
         .then(function(response) { return response.json(); })
         .then(function(result) {
-          if (result.status === "error") {
-            reject(new Error(result.message));
-          } else if (result.status === "chunk_ok") {
-            chunkIndex++;
-            sendNextChunk();
-          } else if (result.status === "ok") {
-            _folderUrl = result.folderUrl; 
-            resolve(result.fileUrl); 
-          }
+          if (result.status === "error") { reject(new Error(result.message)); }
+          else if (result.status === "chunk_ok") { chunkIndex++; sendNextChunk(); }
+          else if (result.status === "ok") { _folderUrl = result.folderUrl; resolve(result.fileUrl); }
         })
         .catch(function(err) { reject(err); });
       };
-
       reader.readAsDataURL(blobSlice);
     }
-
     sendNextChunk();
   });
 }
 
-// ── Bind Form Submission Lifecycle ────────────────────────────
 document.getElementById("fm").addEventListener("submit", sub);
-
-var sSel = document.getElementById("Number_Of_Strings_Connected");
-if(sSel){
-  sSel.addEventListener("change", function() {
-    var count = parseInt(this.value, 10) || 0;
-    for(var i=1; i<=12; i++){
-      var row = document.getElementById("string_row_" + i);
-      if(row) {
-        if(i <= count) row.classList.add("active");
-        else row.classList.remove("active");
-      }
-    }
-  });
-}
 </script>
 </body>
 </html>

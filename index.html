@@ -568,7 +568,11 @@ textarea{resize:vertical;min-height:90px;line-height:1.6}
 
 <script>
 // ── CONFIG — update after each new deployment ────────────────
-var AS_URL = 'https://script.google.com/macros/s/AKfycbzl2ZNMuDJwJ67GGXfAUOsTnLDafhZvjqzMAJ1vQshttjI91ahquoOUaS1EZFizM9O4/exec';
+var AS_URL = 'https://script.google.com/macros/s/AKfycby-gZNgsrpYLNjFwMtKlphga9CP3zYHLzUP-DjqcvqtPBdzEGH_MA7NPjTH0-4k9dsa/exec';
+
+// CHUNK SIZE: 1.5MB raw → ~2MB base64 (well under Apps Script 6MB POST limit)
+// Images 5-10MB → 4-7 chunks. Videos → many chunks. All handled automatically.
+var CHUNK_SIZE = 1.5 * 1024 * 1024; // 1.5 MB raw
 
 // File registry — maps input id → {chips container id, Drive label}
 var FF = {
@@ -601,15 +605,15 @@ function tog(h){var b=h.nextElementSibling,c=h.querySelector('.cv');b.classList.
 function hf(){var v=gv('fb');document.getElementById('sp').classList.toggle('hidden',v!=='pure');document.getElementById('sd').classList.toggle('hidden',v!=='dealer');pg()}
 function hs(){var v=gv('ss');document.getElementById('ssec').classList.toggle('hidden',v!=='yes');document.getElementById('smon').classList.toggle('hidden',v!=='yes');pg()}
 function py(el,gid,val){document.querySelectorAll('#'+gid+' .yb').forEach(function(b){b.classList.remove('yes','no')});el.classList.add(val);pg()}
-function getYN(gid){var el=document.querySelector('#'+gid+' .yb.yes,#'+gid+' .yb.no');return el?(el.classList.contains('yes')?'Yes':'No'):'';}
-function gv(id){var el=document.getElementById(id);return el?(el.value||'').trim():'';}
+function getYN(gid){var el=document.querySelector('#'+gid+' .yb.yes,#'+gid+' .yb.no');return el?(el.classList.contains('yes')?'Yes':'No'):''}
+function gv(id){var el=document.getElementById(id);return el?(el.value||'').trim():''}
 
 function ac(inp,cid){
   var box=document.getElementById(cid);if(!box)return;
   box.innerHTML='';
   Array.from(inp.files).forEach(function(f){
     var ch=document.createElement('div');ch.className='chip';
-    ch.innerHTML='<span>'+(f.type.startsWith('video/')?'📹':'📎')+' '+f.name+' ('+(f.size/1048576).toFixed(1)+' MB)</span><span class="chipx" onclick="this.parentElement.remove()">✕</span>';
+    ch.innerHTML='<span>'+(f.type.startsWith('video/')? '📹':'📎')+' '+f.name+' ('+(f.size/1048576).toFixed(1)+' MB)</span><span class="chipx" onclick="this.parentElement.remove()">✕</span>';
     box.appendChild(ch);
   });pg();
 }
@@ -661,85 +665,114 @@ function allFiles(){
   return list;
 }
 
-// ── Direct Drive upload (bypasses Apps Script entirely) ───────
-// Step 1: get OAuth token from Apps Script (1 GET call)
-// Step 2: upload file directly to Drive resumable API
-// Step 3: ask Apps Script to make file public (1 GET call)
-var _token=null, _folderId=null, _folderUrl='';
-
-function getToken(){
-  return fetch(AS_URL+'?action=getToken')
-    .then(function(r){return r.json();})
-    .then(function(d){
-      if(d.status!=='ok') throw new Error('Token error: '+d.message);
-      _token=d.token; _folderId=d.folderId;
-      return d;
-    });
+// ── Read file as base64 ───────────────────────────────────────
+function readAsBase64(blob){
+  return new Promise(function(resolve,reject){
+    var r=new FileReader();
+    r.onload=function(){
+      // result is "data:mime;base64,XXXX" — strip the prefix
+      resolve(r.result.split(',')[1]);
+    };
+    r.onerror=function(){reject(new Error('FileReader error'))};
+    r.readAsDataURL(blob);
+  });
 }
 
-function getCustomerFolder(customerName,dateStr){
-  return fetch(AS_URL+'?action=getFolder&customerName='+encodeURIComponent(customerName)+'&dateStr='+dateStr)
-    .then(function(r){return r.json();})
-    .then(function(d){
-      if(d.status==='ok'){_folderId=d.folderId;_folderUrl=d.folderUrl;}
-      return d;
-    });
-}
-
-function publishFile(fileId){
-  return fetch(AS_URL+'?action=publishFile&fileId='+fileId)
-    .then(function(r){return r.json();})
-    .then(function(d){
-      if(d.status!=='ok') throw new Error('Publish error: '+(d.message||''));
-      return d.fileUrl;
-    });
-}
-
-// Upload one file directly to Google Drive using resumable upload API
-function uploadFileDirect(file, label, onProgress){
-  var meta={name: label+'_'+file.name, parents:[_folderId]};
-  // Step A: initiate resumable session
-  return fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable',{
-    method:'POST',
-    headers:{
-      'Authorization':'Bearer '+_token,
-      'Content-Type':'application/json',
-      'X-Upload-Content-Type': file.type||'application/octet-stream',
-      'X-Upload-Content-Length': file.size
-    },
-    body: JSON.stringify(meta)
+// ── POST JSON to Apps Script with retry ──────────────────────
+function postJSON(payload, retries){
+  retries = retries || 3;
+  return fetch(AS_URL, {
+    method: 'POST',
+    headers: {'Content-Type': 'text/plain;charset=utf-8'},
+    body: JSON.stringify(payload)
   })
   .then(function(r){
-    if(!r.ok) throw new Error('Session init failed: '+r.status);
-    var loc=r.headers.get('Location');
-    if(!loc) throw new Error('No upload location returned');
-    return loc;
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    return r.text();
   })
-  .then(function(uploadUrl){
-    // Step B: PUT file bytes directly to Drive
-    return new Promise(function(resolve,reject){
-      var xhr=new XMLHttpRequest();
-      xhr.open('PUT',uploadUrl,true);
-      xhr.setRequestHeader('Content-Type',file.type||'application/octet-stream');
-      xhr.upload.onprogress=function(e){if(e.lengthComputable&&onProgress)onProgress(e.loaded/e.total);};
-      xhr.onload=function(){
-        if(xhr.status===200||xhr.status===201){
-          try{resolve(JSON.parse(xhr.responseText));}
-          catch(e){reject(new Error('Bad Drive response'));}
-        } else {
-          reject(new Error('Drive upload failed: '+xhr.status+' '+xhr.responseText));
-        }
-      };
-      xhr.onerror=function(){reject(new Error('XHR network error'));};
-      xhr.send(file);
-    });
+  .then(function(txt){
+    try{ return JSON.parse(txt); }
+    catch(e){
+      // Apps Script redirect wrapper — check for success keyword
+      if(txt.indexOf('"status":"ok"')!==-1||txt.indexOf('"status": "ok"')!==-1) return {status:'ok'};
+      if(txt.indexOf('"status":"success"')!==-1) return {status:'success'};
+      throw new Error('Bad JSON response');
+    }
   })
-  .then(function(driveFile){
-    // Step C: make public via Apps Script, get view URL
-    return publishFile(driveFile.id).then(function(url){
-      return {label:label, fileUrl:url};
-    });
+  .catch(function(err){
+    if(retries>1){
+      return new Promise(function(res){setTimeout(res,1500)}).then(function(){return postJSON(payload,retries-1);});
+    }
+    throw err;
   });
+}
+
+// ── Upload one file (auto-selects single vs chunked) ─────────
+// Files ≤ 3MB raw → single upload
+// Files > 3MB raw → chunked upload (images 5-10MB, videos)
+function uploadFile(file, label, folderId, onProgress){
+  var sizeMB = file.size / 1048576;
+
+  if(file.size <= CHUNK_SIZE * 2){ // ≤ 3MB: single upload
+    return readAsBase64(file).then(function(b64){
+      onProgress(0.3);
+      return postJSON({
+        action   : 'uploadFile',
+        folderId : folderId,
+        fileName : label + '_' + file.name,
+        mimeType : file.type || 'application/octet-stream',
+        base64   : b64
+      });
+    }).then(function(res){
+      if(res.status !== 'ok') throw new Error(res.message || 'Upload failed');
+      onProgress(1);
+      return {label: label, fileUrl: res.fileUrl};
+    });
+  }
+
+  // Chunked upload for large files
+  var uploadId    = 'up_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
+  var totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+  var chunkIdx    = 0;
+
+  function uploadNextChunk(){
+    if(chunkIdx >= totalChunks){
+      // All chunks sent — finalize
+      onProgress(0.9);
+      return postJSON({
+        action   : 'finalizeUpload',
+        uploadId : uploadId
+      }).then(function(res){
+        if(res.status !== 'ok') throw new Error(res.message || 'Finalize failed');
+        onProgress(1);
+        return {label: label, fileUrl: res.fileUrl};
+      });
+    }
+    var start  = chunkIdx * CHUNK_SIZE;
+    var end    = Math.min(start + CHUNK_SIZE, file.size);
+    var slice  = file.slice(start, end);
+    var isLast = (chunkIdx === totalChunks - 1);
+    return readAsBase64(slice).then(function(b64){
+      return postJSON({
+        action      : 'uploadChunk',
+        uploadId    : uploadId,
+        chunkIdx    : chunkIdx,
+        chunk       : b64,
+        isLast      : isLast,
+        folderId    : folderId,
+        fileName    : label + '_' + file.name,
+        mimeType    : file.type || 'application/octet-stream',
+        totalChunks : totalChunks
+      });
+    }).then(function(res){
+      if(res.status !== 'ok') throw new Error(res.message || 'Chunk '+chunkIdx+' failed');
+      chunkIdx++;
+      onProgress(chunkIdx / totalChunks * 0.88);
+      return uploadNextChunk();
+    });
+  }
+
+  return uploadNextChunk();
 }
 
 // ── Collect text data ─────────────────────────────────────────
@@ -850,93 +883,95 @@ function sub(){
   document.getElementById('uov').classList.add('open');
   setP(2,'Getting ready...','');
 
-  var textData=collectData();
-  var filledCount=Object.values(textData).filter(function(v){return v&&v!=='';}).length;
-  var customerName=gv('cust_name');
-  var dateStr=new Date().toISOString().substring(0,10);
-  var submittedAt=new Date().toISOString();
-  var files=allFiles();
-  var totalFiles=files.length;
-  var uploadedLinks={};
-  var uploadedCount=0;
+  var textData    = collectData();
+  var filledCount = Object.values(textData).filter(function(v){return v&&v!=='';}).length;
+  var customerName= gv('cust_name');
+  var dateStr     = new Date().toISOString().substring(0,10);
+  var submittedAt = new Date().toISOString();
+  var files       = allFiles();
+  var totalFiles  = files.length;
+  var uploadedLinks  = {};
+  var uploadedCount  = 0;
+  var currentFolderId= null;
+  var folderUrl      = '';
 
-  function finish(){
-    setP(95,'Saving to Google Sheets...','');
-    fetch(AS_URL,{
-      method:'POST',
-      headers:{'Content-Type':'text/plain;charset=utf-8'},
-      body:JSON.stringify({textData:textData,fileLinks:uploadedLinks,folderUrl:_folderUrl,customerName:customerName,submittedAt:submittedAt})
-    })
-    .then(function(r){return r.text();})
-    .then(function(txt){
-      var res={status:'unknown'};
-      try{res=JSON.parse(txt);}catch(e){
-        // Apps Script sometimes wraps response in HTML redirect — still treat as success
-        if(txt.indexOf('"status":"success"')!==-1||txt.indexOf('"status": "success"')!==-1) res={status:'success'};
-      }
+  // Step 1: Create customer folder
+  function createFolder(){
+    setP(4,'Creating customer folder...','');
+    return fetch(AS_URL+'?action=getFolder&customerName='+encodeURIComponent(customerName)+'&dateStr='+dateStr)
+      .then(function(r){return r.json();})
+      .then(function(d){
+        if(d.status==='ok'){currentFolderId=d.folderId;folderUrl=d.folderUrl;}
+        else throw new Error('Folder creation failed: '+(d.message||''));
+      });
+  }
+
+  // Step 2: Upload all files sequentially (reliable, shows per-file progress)
+  function uploadAllFiles(){
+    var idx=0;
+    function next(){
+      if(idx>=files.length) return Promise.resolve();
+      var item   = files[idx];
+      var sizeMB = (item.file.size/1048576).toFixed(1);
+      var isVideo= item.file.type.startsWith('video/');
+      setP(
+        10 + (idx/Math.max(totalFiles,1))*80,
+        (isVideo?'📹 ':'📸 ')+'File '+(idx+1)+' of '+totalFiles+': '+item.label,
+        item.file.name+' ('+sizeMB+' MB)'+(isVideo?' — chunked upload':'')
+      );
+      return uploadFile(item.file, item.label, currentFolderId, function(pct){
+        setP(
+          10 + ((idx+pct)/Math.max(totalFiles,1))*80,
+          (isVideo?'📹 ':'📸 ')+'Uploading '+item.label+' — '+Math.round(pct*100)+'%',
+          item.file.name+' ('+sizeMB+' MB)'
+        );
+      })
+      .then(function(result){
+        uploadedLinks[result.label]=result.fileUrl;
+        uploadedCount++;
+        idx++;
+        return next();
+      })
+      .catch(function(err){
+        console.error('Upload failed:',item.label,err);
+        toast('⚠️ '+item.label+' failed — skipping',true);
+        idx++;
+        return next();
+      });
+    }
+    return next();
+  }
+
+  // Step 3: Submit text data + file links to Sheets
+  function submitToSheets(){
+    setP(92,'Saving to Google Sheets...','');
+    return postJSON({
+      action       : 'submitForm',
+      textData     : textData,
+      fileLinks    : uploadedLinks,
+      folderUrl    : folderUrl,
+      customerName : customerName,
+      submittedAt  : submittedAt
+    }).then(function(res){
+      if(res.status==='error') throw new Error(res.message||'Sheet error');
       setP(100,'Done! ✓','');
       setTimeout(function(){
         document.getElementById('uov').classList.remove('open');
         btn.disabled=false;btn.innerHTML='<span>✓</span> Submit I&C Form';
-        if(res.status==='error'){
-          toast('⚠️ Sheet error: '+res.message,true);
-        } else {
-          showSuccess(filledCount,uploadedCount,customerName,gv('cust_mobile'),submittedAt);
-        }
+        showSuccess(filledCount,uploadedCount,customerName,gv('cust_mobile'),submittedAt);
       },600);
-    })
-    .catch(function(err){
-      document.getElementById('uov').classList.remove('open');
-      btn.disabled=false;btn.innerHTML='<span>✓</span> Submit I&C Form';
-      toast('❌ Network error. Please retry.',true);
     });
   }
 
-  function processFile(idx){
-    if(idx>=files.length){finish();return;}
-    var item=files[idx];
-    var sizeMB=(item.file.size/1048576).toFixed(1);
-    setP((idx/Math.max(totalFiles,1))*90+2,'File '+(idx+1)+' of '+totalFiles+': '+item.label,item.file.name+' ('+sizeMB+' MB)');
-    uploadFileDirect(item.file,item.label,function(pct){
-      setP((idx/Math.max(totalFiles,1))*90+pct*(90/Math.max(totalFiles,1))+2,
-        'Uploading '+item.label+' — '+Math.round(pct*100)+'%',
-        item.file.name+' ('+sizeMB+' MB)');
-    })
-    .then(function(result){
-      uploadedLinks[result.label]=result.fileUrl;
-      uploadedCount++;
-      processFile(idx+1);
-    })
+  // Run the pipeline
+  createFolder()
+    .then(uploadAllFiles)
+    .then(submitToSheets)
     .catch(function(err){
-      console.error('Upload failed:',item.label,err);
-      toast('⚠️ '+item.label+' upload failed — continuing',true);
-      processFile(idx+1);
-    });
-  }
-
-  if(totalFiles===0){
-    // No files — just get folder and submit text
-    setP(10,'Creating customer folder...','');
-    getCustomerFolder(customerName,dateStr)
-      .catch(function(){})
-      .then(function(){finish();});
-    return;
-  }
-
-  // Get token first, then create folder, then upload all files
-  document.getElementById('uovTitle').textContent='Uploading '+totalFiles+' file(s)...';
-  setP(5,'Getting upload token...','');
-  getToken()
-    .then(function(){
-      setP(8,'Creating customer folder...','');
-      return getCustomerFolder(customerName,dateStr);
-    })
-    .then(function(){processFile(0);})
-    .catch(function(err){
-      console.error('Init error:',err);
+      console.error('Submit error:',err);
       document.getElementById('uov').classList.remove('open');
       btn.disabled=false;btn.innerHTML='<span>✓</span> Submit I&C Form';
-      toast('❌ Upload init failed: '+err.message,true);
+      toast('❌ Error: '+err.message,true);
     });
 }
 
